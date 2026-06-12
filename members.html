@@ -1,0 +1,1407 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Chitly – Members</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="images/sskicon.png">
+
+  <!-- ===== STYLES (UNCHANGED) ===== -->
+  <style>
+    /* --- SAME CSS YOU PROVIDED (NO CHANGES) --- */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #f5efe6;
+      --bg-gradient: linear-gradient(135deg, #fdf3e7, #f7e4cf);
+      --text: #3a251b;
+      --accent: #d2b89b;
+      --card-bg: #fff7ee;
+      --nav-text-light: #7a5b47;
+      --row-hover: rgba(210, 184, 155, .18);
+    }
+
+    body {
+      font-family: system-ui, Arial;
+      background: var(--bg-gradient);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+
+    /* NAVBAR & SIDEBAR */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(245, 239, 230, 0.96);
+      backdrop-filter: blur(6px);
+      border-bottom: 1px solid rgba(210, 184, 155, 0.7);
+      padding: 10px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand {
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .desktop-menu {
+      display: none;
+      align-items: center;
+      gap: 16px;
+    }
+
+    /* Mobile Hamburger */
+    .hamburger {
+      display: block;
+      background: none;
+      border: none;
+      cursor: pointer;
+      width: 30px;
+      height: 24px;
+      position: relative;
+    }
+
+    .hamburger span,
+    .hamburger::before,
+    .hamburger::after {
+      content: '';
+      display: block;
+      width: 100%;
+      height: 2px;
+      background: var(--text);
+      position: absolute;
+      left: 0;
+      transition: 0.2s;
+    }
+
+    .hamburger::before {
+      top: 0;
+    }
+
+    .hamburger span {
+      top: 10px;
+    }
+
+    .hamburger::after {
+      bottom: 0;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -280px;
+      width: 280px;
+      height: 100vh;
+      background: #fff;
+      z-index: 100;
+      box-shadow: 2px 0 12px rgba(0, 0, 0, 0.1);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      transition: left 0.3s ease;
+    }
+
+    .sidebar.open {
+      left: 0;
+    }
+
+    .sidebar-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 90;
+      display: none;
+    }
+
+    .sidebar-overlay.open {
+      display: block;
+    }
+
+    .sidebar-links {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 40px;
+    }
+
+    .sidebar-links a {
+      text-decoration: none;
+      color: var(--text);
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+
+    .sidebar-links a.active {
+      color: #d2b89b;
+    }
+
+    /* Desktop View */
+    @media (min-width: 768px) {
+      .hamburger {
+        display: none;
+      }
+
+      .desktop-menu {
+        display: flex;
+      }
+
+      .desktop-links {
+        display: flex;
+        gap: 16px;
+      }
+
+      .desktop-links a {
+        text-decoration: none;
+        color: var(--text);
+        font-weight: 600;
+        padding: 6px 12px;
+        border-radius: 20px;
+        transition: background .2s;
+      }
+
+      .desktop-links a:hover,
+      .desktop-links a.active {
+        background: #fff7ee;
+        color: #d2b89b;
+      }
+
+      .profile-menu {
+        position: relative;
+        cursor: pointer;
+      }
+
+      .profile-circle {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: var(--text);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        overflow: hidden;
+      }
+
+      .profile-circle img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .dropdown {
+        position: absolute;
+        top: 110%;
+        right: 0;
+        background: #fff;
+        width: 160px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+        padding: 8px 0;
+        display: none;
+        flex-direction: column;
+        border: 1px solid #eee;
+      }
+
+      .dropdown.show {
+        display: flex;
+      }
+
+      .dropdown a {
+        padding: 10px 16px;
+        text-decoration: none;
+        color: var(--text);
+        font-size: 0.9rem;
+      }
+
+      .dropdown a:hover {
+        background: #f9f9f9;
+      }
+    }
+
+    .page {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 16px 16px 28px;
+    }
+
+    .hero {
+      background: radial-gradient(circle at top left, #fff9f2, #f7e4cf);
+      border-radius: 16px;
+      padding: 18px;
+      margin-top: 12px;
+      margin-bottom: 18px;
+      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.06);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .hero-title-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      justify-content: space-between;
+    }
+
+    .hero-left {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .hero h1 {
+      font-size: clamp(1.2rem, 3vw, 1.6rem);
+      font-weight: 700;
+    }
+
+    .filter-chip {
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      background: rgba(255, 255, 255, 0.7);
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .hero p {
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+
+    .legend {
+      margin-top: 4px;
+      font-size: 0.8rem;
+      opacity: 0.8;
+      display: flex;
+      gap: 10px;
+    }
+
+    .status-pill {
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .status-active {
+      background: rgba(0, 140, 62, 0.08);
+      border: 1px solid rgba(0, 140, 62, 0.5);
+      color: #006636;
+    }
+
+    .status-cancelled {
+      background: rgba(220, 20, 60, 0.08);
+      border: 1px solid rgba(220, 20, 60, 0.6);
+      color: #b1123f;
+    }
+
+    .table-card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);
+      padding: 12px;
+      overflow: hidden;
+    }
+
+    .table-scroll {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 560px;
+      font-size: 0.9rem;
+    }
+
+    thead {
+      background: #f2e4d3;
+    }
+
+    th,
+    td {
+      padding: 8px 10px;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    th {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      opacity: 0.9;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid rgba(210, 184, 155, 0.35);
+      transition: background .15s, transform .08s;
+      cursor: pointer;
+    }
+
+    tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    tbody tr:hover {
+      background: var(--row-hover);
+      transform: translateY(-1px);
+    }
+
+    .col-rank {
+      width: 50px;
+      font-weight: 600;
+      opacity: 0.8;
+    }
+
+    .col-name {
+      font-weight: 600;
+    }
+
+    .col-amount {
+      font-feature-settings: "tnum" 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .tag-amount {
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(58, 37, 27, 0.06);
+      border: 1px solid rgba(58, 37, 27, 0.1);
+      font-size: 0.78rem;
+    }
+
+    .row-cancelled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .row-cancelled:hover {
+      background: transparent;
+      transform: none;
+    }
+
+    .row-cancelled .col-name {
+      text-decoration: line-through;
+    }
+
+    .empty-row td {
+      text-align: center;
+      padding: 14px 10px;
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background .15s, transform .08s, box-shadow .15s;
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+      box-shadow: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #ffe0d5, #ffeedf);
+      border: 1px solid rgba(210, 184, 155, 1);
+      color: var(--text);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.02);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid rgba(58, 37, 27, 0.3);
+      color: var(--text);
+    }
+
+    .btn-outline:hover {
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.35);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 40;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 16px 18px 16px;
+      max-width: 340px;
+      width: 90%;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(210, 184, 155, 0.9);
+    }
+
+    .modal-title {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .modal-field {
+      margin-bottom: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .modal-label {
+      font-size: 0.8rem;
+      opacity: 0.8;
+    }
+
+    .modal-input,
+    .modal-select {
+      border-radius: 999px;
+      border: 1px solid rgba(210, 184, 155, 0.9);
+      padding: 6px 10px;
+      font-size: 0.85rem;
+      outline: none;
+      background: #fff;
+    }
+
+    .modal-input:focus,
+    .modal-select:focus {
+      box-shadow: 0 0 0 2px rgba(210, 184, 155, 0.4);
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    @media (max-width:767px) {
+      .page {
+        padding: 14px 12px 24px;
+      }
+
+      .nav-inner {
+        justify-content: space-between;
+      }
+
+      .hamburger {
+        display: block;
+      }
+
+      .brand {
+        margin-left: 8px;
+      }
+
+      .nav-links {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 100%;
+        background: rgba(245, 239, 230, 0.98);
+        border-bottom: 1px solid var(--accent);
+        padding: 10px 16px 12px;
+        flex-direction: column;
+        gap: 8px;
+        display: none;
+      }
+
+      .nav-links.open {
+        display: flex;
+      }
+
+      /* --- Restore Table Layout --- */
+      .table-card {
+        padding: 0;
+        box-shadow: none;
+        background: transparent;
+      }
+
+      .table-scroll {
+        overflow: visible;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      /* Hide unwanted columns (Mobile, Status) - Keep No and Member */
+      th:nth-child(3),
+      td:nth-child(3),
+      th:nth-child(4),
+      td:nth-child(4) {
+        display: none;
+      }
+
+      /* Style Serial No Column */
+      th:nth-child(1),
+      td:nth-child(1) {
+        display: table-cell;
+        width: 45px;
+        padding: 12px 6px 12px 4px;
+        text-align: center;
+        border-bottom: 1px solid rgba(210, 184, 155, 0.4);
+        border-right: 2px solid rgba(210, 184, 155, 0.3);
+        /* Vertical Separator */
+        font-weight: 700;
+        color: #9c8c7f;
+      }
+
+      /* Style Member Column */
+      th:nth-child(2),
+      td:nth-child(2) {
+        display: table-cell;
+        width: 100%;
+        padding: 12px 0 12px 12px;
+        /* Space from separator */
+        text-align: left;
+        border-bottom: 1px solid rgba(210, 184, 155, 0.4);
+      }
+
+      /* Hide data-labels since we have a header now */
+      td::before {
+        display: none;
+      }
+
+      td .cell-val {
+        text-align: left;
+        margin: 0;
+        font-size: 1rem;
+        color: var(--text);
+        font-weight: 600;
+      }
+
+      .hero-title-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+
+      .hero-left,
+      .hero-title-row>div:last-child {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+
+    @media (min-width:768px) {
+      .hamburger {
+        display: none;
+      }
+
+      .nav-inner {
+        justify-content: space-between;
+      }
+
+      .nav-links {
+        position: static;
+        flex-direction: row;
+        border: none;
+        padding: 0;
+        display: flex !important;
+      }
+    }
+
+    /* --- NEW SEARCH ROW STYLES --- */
+    .search-row {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .chit-amount-display {
+      font-weight: 700;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.6);
+      border: 1px solid rgba(210, 184, 155, 0.5);
+      padding: 10px 16px;
+      border-radius: 12px;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .chit-amount-label {
+      font-size: 0.9rem;
+      opacity: 0.7;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-right: 8px;
+    }
+
+    .chit-amount-value {
+      margin-left: 8px;
+      font-size: 0.9rem;
+      color: #006636;
+    }
+
+    .search-container {
+      width: 100%;
+      position: relative;
+    }
+
+    @media (min-width: 768px) {
+      .search-row {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .search-container {
+        flex: 1;
+        /* Search takes available space */
+        order: 1;
+        /* Search on LEFT */
+      }
+
+      .chit-amount-display {
+        order: 2;
+        /* Amount on RIGHT */
+        margin-left: 16px;
+        min-width: 220px;
+        justify-content: center;
+        flex-direction: column;
+        gap: 2px;
+        align-items: flex-end;
+        /* Align text to right if column */
+        text-align: right;
+        background: var(--card-bg);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+      }
+
+      .chit-amount-display {
+        /* Let's keep it row for desktop too, but maybe simpler */
+        flex-direction: row;
+        gap: 12px;
+      }
+    }
+
+    /* --- UNPAID LIST CARD STYLES --- */
+    .unpaid-card {
+      background: #fafafa;
+      border: 1px solid #eee;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    .unpaid-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .unpaid-name {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--text);
+    }
+
+    .call-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      background: #e6f4ea;
+      color: #1e8e3e;
+      border-radius: 50%;
+      text-decoration: none;
+      border: 1px solid #ceead6;
+      transition: background 0.2s;
+    }
+
+    .call-btn:hover {
+      background: #dceedd;
+    }
+
+    .unpaid-table {
+      width: 100%;
+      font-size: 0.85rem;
+      border-collapse: collapse;
+      min-width: 0;
+      /* Override global table min-width */
+    }
+
+    .unpaid-table th {
+      text-align: left;
+      color: #888;
+      font-weight: 600;
+      font-size: 0.75rem;
+      padding-bottom: 4px;
+    }
+
+    .unpaid-table td {
+      padding: 4px 0;
+      white-space: normal;
+      /* Allow text wrapping in card */
+    }
+  </style>
+</head>
+
+
+<body>
+
+  <header class="navbar">
+    <div class="brand">Chitly</div>
+
+    <!-- Desktop Menu -->
+    <div class="desktop-menu">
+      <nav class="desktop-links">
+        <a href="plans.html" data-i18n="nav_plans">Plans</a>
+        <a href="chits.html" class="active" data-i18n="nav_chits">Chits</a>
+        <a href="feedback.html" data-i18n="nav_feedback">Feedback</a>
+      </nav>
+      <div class="profile-menu" id="profileMenuBtn">
+        <div class="profile-circle" id="headerAvatar">?</div>
+        <div class="dropdown" id="profileDropdown">
+          <a href="profile.html" data-i18n="nav_profile">My Profile</a>
+          <a href="#" onclick="logout()" data-i18n="nav_logout">Logout</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Toggle -->
+    <button class="hamburger" id="hamburger" onclick="toggleSidebar()">
+      <span></span>
+    </button>
+  </header>
+
+  <!-- Sidebar HTML -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+  <div class="sidebar" id="sidebar">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <div class="brand">Chitly</div>
+      <button onclick="toggleSidebar()"
+        style="background:none;border:none;font-size:1.5rem;cursor:pointer">&times;</button>
+    </div>
+    <nav class="sidebar-links">
+      <a href="plans.html" data-i18n="nav_plans">Plans</a>
+      <a href="chits.html" class="active" data-i18n="nav_chits">Chits</a>
+      <a href="feedback.html" data-i18n="nav_feedback">Feedback</a>
+      <a href="profile.html" data-i18n="nav_profile">My Profile</a>
+      <a href="#" onclick="logout()" data-i18n="nav_logout">Logout</a>
+    </nav>
+  </div>
+
+  <main class="page">
+
+    <section class="hero">
+
+      <!-- Top Row: Back (Left) and Delete (Right) -->
+      <div class="hero-top-bar"
+        style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <button onclick="location.href='chits.html'"
+          style="padding: 4px 10px; border-radius: 8px; border: none; background: #3a251b;  color: #fff; font-size: 0.95rem; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: opacity 0.2s"
+          data-i18n="back">
+          Back
+        </button>
+
+
+      </div>
+
+      <!-- Title Row -->
+      <div class="hero-title-row" style="margin-bottom:12px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; width:100%">
+          <h1 data-i18n="header_members">Members</h1>
+          <button class="btn" onclick="confirmDeleteChit()"
+            style="background:#fff0f0; color:#b12d3b; border:1px solid #dcb0b0; font-size:0.85rem; padding: 4px 10px;"
+            data-i18n="btn_delete_chit">Delete
+            Chit</button>
+        </div>
+      </div>
+
+      <!-- Search Row: Search (Left Desktop) + Amount (Right Desktop / Top Mobile) -->
+      <div class="search-row">
+
+        <!-- AMOUNT DISPLAY (Mobile: Top, Desktop: Right via Order) -->
+        <div id="chitAmountDisplay" class="chit-amount-display" style="display:none">
+          <span class="chit-amount-label"><span data-i18n="chit_value_label">Chit Value</span> <span
+              class="chit-amount-value" id="amountValue">₹0</span></span>
+
+        </div>
+
+        <!-- SEARCH BAR -->
+        <div class="search-container">
+          <input type="text" id="searchInput" onkeyup="filterMembers()" placeholder="Search..."
+            data-i18n-placeholder="placeholder_search"
+            style="width:100%; padding:10px 14px; border-radius:12px; border:1px solid rgba(210,184,155,0.6); outline:none; font-size:0.95rem; background:#fff;">
+        </div>
+
+      </div>
+
+      <!-- Bottom Action: Add Member -->
+      <!-- Bottom Action: Add Member & Unpaid List -->
+      <div style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap">
+        <button class="btn btn-primary" id="addMemberBtn" style="width:160px; justify-content:center; display:flex;"
+          data-i18n="btn_add_member">+
+          Add Member</button>
+        <button class="btn" onclick="showUnpaidList()"
+          style="width:160px; justify-content:center; display:flex; background:#fff0f0; color:#b12d3b; border:1px solid #dcb0b0"
+          data-i18n="btn_unpaid_list">Unpaid
+          List</button>
+      </div>
+
+    </section>
+
+    <section class="table-card">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th data-i18n="th_no">No</th>
+              <th data-i18n="th_member">Member</th>
+              <th data-i18n="th_mobile">Mobile</th>
+              <th data-i18n="th_status">Status</th>
+            </tr>
+          </thead>
+          <tbody id="memberTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== DELETE CHIT MODAL ===== -->
+  <div class="modal-overlay" id="deleteChitModal">
+    <div class="modal">
+      <div class="modal-title" data-i18n="modal_delete_chit_title">Delete Chit</div>
+      <p style="font-size:0.9rem; opacity:0.8; margin-bottom:12px;" data-i18n="modal_delete_chit_msg">
+        Are you sure you want to delete this chit? All members and payments in this chit will be permanently removed.
+      </p>
+      <div class="modal-actions">
+        <button class="btn btn-outline" onclick="closeDeleteChitModal()" data-i18n="cancel">Cancel</button>
+        <button class="btn" onclick="deleteChit()" style="background:#fff0f0; color:#b12d3b; border:1px solid #dcb0b0"
+          data-i18n="btn_delete">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ADD MEMBER MODAL ===== -->
+  <div class="modal-overlay" id="addModal">
+    <div class="modal">
+      <div class="modal-title" data-i18n="modal_add_member_title">Add Member</div>
+
+      <div class="modal-field">
+        <label class="modal-label" data-i18n="label_name">Name</label>
+        <input id="memberName" class="modal-input" placeholder="Member name" data-i18n-placeholder="placeholder_name">
+      </div>
+
+      <div class="modal-field">
+        <label class="modal-label" data-i18n="label_mobile">Mobile Number</label>
+        <input id="memberMobile" class="modal-input" placeholder="10-digit mobile" maxlength="10"
+          data-i18n-placeholder="placeholder_mobile">
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-outline" onclick="closeModal()" data-i18n="cancel">Cancel</button>
+        <button class="btn btn-primary" onclick="saveMember()" data-i18n="btn_save">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== UNPAID LIST MODAL ===== -->
+  <div class="modal-overlay" id="unpaidModal">
+    <div class="modal" style="max-width:400px; width:95%">
+      <div class="modal-title" data-i18n="modal_unpaid_title">Unpaid List</div>
+      <div style="margin-bottom:12px">
+        <input id="unpaidSearchInput" type="text" placeholder="Search member..." onkeyup="filterUnpaidList()"
+          style="width:100%; padding:8px 12px; border-radius:8px; border:1px solid #ddd; outline:none; font-size:0.9rem"
+          data-i18n-placeholder="placeholder_search_member">
+      </div>
+      <div id="unpaidListContainer" style="max-height:60vh; overflow-y:auto; margin-bottom:12px; padding-right:4px;">
+        <!-- Content injected by JS -->
+      </div>
+      <div id="unpaidEmpty" style="text-align:center; padding:20px; opacity:0.6; display:none"
+        data-i18n="msg_no_unpaid">
+        No unpaid members found.
+      </div>
+      <div class="modal-actions">
+        <button class="btn" onclick="closeUnpaidModal()" data-i18n="btn_close">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== NOTIFICATION MODAL ===== -->
+  <div class="modal-overlay" id="notifyModal">
+    <div class="modal" style="text-align:center">
+      <h3 id="notifyTitle" style="margin-bottom:8px">Message</h3>
+      <p id="notifyText" style="margin-bottom:16px; opacity:.8"></p>
+      <button class="btn" onclick="closeNotify()">OK</button>
+    </div>
+  </div>
+
+  <script src="translations.js"></script>
+  <script>
+    /* ================= CONFIG ================= */
+    const API_BASE = 'http://localhost:4000/api';
+    const token = localStorage.getItem('token');
+    const chitId = sessionStorage.getItem('activeChitId');
+
+    let activeChit = null; // Store globally
+    let allMembers = [];   // Store globally
+
+    if (!token || !chitId) {
+      location.href = 'plans.html';
+    }
+
+    /* ================= HELPERS ================= */
+    function authHeaders() {
+      return {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      };
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/[&<>"']/g, s => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[s]);
+    }
+
+    /* ================= LOAD MEMBERS (✅ FIXED ROUTE) ================= */
+    async function loadMembers() {
+      try {
+        const res = await fetch(
+          `${API_BASE}/chits/${chitId}/members`,
+          { headers: authHeaders() }
+        );
+
+        if (!res.ok) throw new Error('Fetch failed');
+
+        const members = await res.json();
+        allMembers = members; // Store for Unpaid calc
+        renderMembers(members);
+
+      } catch (err) {
+        alert('Unable to load members');
+        console.error(err);
+      }
+    }
+
+    /* ================= RENDER ================= */
+    function renderMembers(members) {
+      const tbody = document.getElementById('memberTableBody');
+      tbody.innerHTML = '';
+
+      if (!members.length) {
+        tbody.innerHTML =
+          `<tr><td colspan="4" style="text-align:center;opacity:.7">No members yet</td></tr>`;
+        return;
+      }
+
+      members.forEach((m, i) => {
+        const tr = document.createElement('tr');
+        // Ensure values are present or explicitly show placeholder
+        const safeName = escapeHtml(m.name) || '<span style="opacity:0.5;font-style:italic">No Name</span>';
+        const safeMobile = m.mobile || '-';
+        const safeStatus = m.status || 'Active';
+
+        tr.innerHTML = `
+          <td data-label="No"><span class="cell-val">${i + 1}</span></td>
+          <td class="col-name" data-label="Member"><span class="cell-val">${safeName}</span></td>
+          <td data-label="Mobile"><span class="cell-val">${safeMobile}</span></td>
+          <td data-label="Status"><span class="cell-val">${safeStatus}</span></td>
+        `;
+        tr.onclick = () => {
+          window.location.href = `memberdetail.html?id=${m._id}`;
+        };
+        tbody.appendChild(tr);
+      });
+    }
+
+    /* ================= NOTIFICATION HELPER ================= */
+    const notifyModal = document.getElementById('notifyModal');
+    const notifyTitle = document.getElementById('notifyTitle');
+    const notifyText = document.getElementById('notifyText');
+
+    function showNotify(msg, title = 'Notice') {
+      notifyTitle.textContent = title;
+      notifyText.textContent = msg;
+      notifyModal.classList.add('open');
+    }
+
+    function closeNotify() {
+      notifyModal.classList.remove('open');
+    }
+
+    /* ================= SEARCH FILTER ================= */
+    function filterMembers() {
+      const input = document.getElementById('searchInput');
+      const filter = input.value.toLowerCase();
+      const tbody = document.getElementById('memberTableBody');
+      const trs = tbody.getElementsByTagName('tr');
+
+      for (let i = 0; i < trs.length; i++) {
+        if (trs[i].innerHTML.includes('No members yet')) continue;
+
+        const nameCell = trs[i].getElementsByTagName('td')[1];
+        const mobileCell = trs[i].getElementsByTagName('td')[2];
+
+        if (nameCell || mobileCell) {
+          const nameText = nameCell ? nameCell.textContent || nameCell.innerText : '';
+          const mobileText = mobileCell ? mobileCell.textContent || mobileCell.innerText : '';
+
+          if (nameText.toLowerCase().indexOf(filter) > -1 || mobileText.indexOf(filter) > -1) {
+            trs[i].style.display = "";
+          } else {
+            trs[i].style.display = "none";
+          }
+        }
+      }
+    }
+
+    /* ================= LOAD MEMBERS (✅ FIXED ROUTE) ================= */
+    async function loadMembers() {
+      try {
+        const res = await fetch(
+          `${API_BASE}/chits/${chitId}/members`,
+          { headers: authHeaders() }
+        );
+
+        if (!res.ok) throw new Error('Fetch failed');
+
+        const members = await res.json();
+        allMembers = members; // Store for Unpaid calc
+        renderMembers(members);
+
+      } catch (err) {
+        showNotify('Unable to load members', 'Error');
+        console.error(err);
+      }
+    }
+
+    /* ================= UNPAID LIST LOGIC ================= */
+    const unpaidModal = document.getElementById('unpaidModal');
+
+    function filterUnpaidList() {
+      const input = document.getElementById('unpaidSearchInput');
+      const filter = input.value.toLowerCase();
+      const container = document.getElementById('unpaidListContainer');
+      const cards = container.getElementsByClassName('unpaid-card');
+
+      for (let i = 0; i < cards.length; i++) {
+        const nameEl = cards[i].querySelector('.unpaid-name');
+        if (nameEl) {
+          const nameText = nameEl.textContent || nameEl.innerText;
+          if (nameText.toLowerCase().indexOf(filter) > -1) {
+            cards[i].style.display = "";
+          } else {
+            cards[i].style.display = "none";
+          }
+        }
+      }
+    }
+
+    function showUnpaidList() {
+      if (!activeChit || !allMembers.length) {
+        showNotify('Please wait for data to load', 'Loading...');
+        return;
+      }
+
+      const container = document.getElementById('unpaidListContainer');
+      const emptyMsg = document.getElementById('unpaidEmpty');
+      document.getElementById('unpaidSearchInput').value = ''; // Reset search
+      container.innerHTML = '';
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      if (!activeChit.startDate) {
+        showNotify('Chit has no start date set', 'Info');
+        return;
+      }
+      const startDate = new Date(activeChit.startDate);
+
+      // Group by Member
+      const memberMap = new Map(); // memberId -> { name, mobile, items: [] }
+
+      allMembers.forEach(m => {
+        if (!m.payments) return;
+
+        m.payments.forEach(p => {
+          if (!p.paid) {
+            // Due Date Calc
+            let dueDate = new Date(startDate);
+            if (activeChit.frequency === 'month') {
+              dueDate.setMonth(startDate.getMonth() + (p.period - 1));
+            } else {
+              dueDate.setDate(startDate.getDate() + (p.period - 1) * 7);
+            }
+            dueDate.setHours(0, 0, 0, 0);
+
+            if (today > dueDate) {
+              const diffTime = Math.abs(today - dueDate);
+              const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+              if (!memberMap.has(m._id)) {
+                memberMap.set(m._id, {
+                  name: m.name,
+                  mobile: m.mobile,
+                  items: []
+                });
+              }
+
+              memberMap.get(m._id).items.push({
+                period: p.period,
+                delay: diffDays
+              });
+            }
+          }
+        });
+      });
+
+      if (memberMap.size === 0) {
+        emptyMsg.style.display = 'block';
+        container.style.display = 'none';
+      } else {
+        emptyMsg.style.display = 'none';
+        container.style.display = 'block';
+
+        // Convert to array and sort by max delay? Or just render
+        const sortedMembers = Array.from(memberMap.values());
+
+        sortedMembers.forEach(m => {
+          // Sort items by period desc
+          m.items.sort((a, b) => b.period - a.period);
+
+          const card = document.createElement('div');
+          card.className = 'unpaid-card';
+
+          // Build Table Rows
+          const rows = m.items.map(it => `
+                    <tr>
+                        <td style="width:50px; text-align:center; background:#eee; border-radius:4px; font-weight:600">${it.period}</td>
+                        <td style="padding-left:12px; color:#b12d3b; font-weight:600">${it.delay} <span data-i18n="suffix_days_delay">days delay</span></td>
+                    </tr>
+                `).join('');
+
+          const callAction = m.mobile ?
+            `<a href="tel:${m.mobile}" class="call-btn" title="Call">
+                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                     </a>`
+            : '';
+
+          card.innerHTML = `
+                    <div class="unpaid-header">
+                        <div class="unpaid-name">${escapeHtml(m.name)}</div>
+                        ${callAction}
+                    </div>
+                    <table class="unpaid-table">
+                        <thead>
+                            <tr>
+                                <th style="text-align:center" data-i18n="th_period">Period</th>
+                                <th style="padding-left:12px" data-i18n="th_status">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rows}
+                        </tbody>
+                    </table>
+                `;
+          container.appendChild(card);
+        });
+      }
+
+      unpaidModal.classList.add('open');
+      if (typeof applyGlobalTranslations === 'function') applyGlobalTranslations();
+    }
+
+    function closeUnpaidModal() {
+      unpaidModal.classList.remove('open');
+    }
+
+    /* ================= MODAL ================= */
+    const modal = document.getElementById('addModal');
+
+    function openModal() {
+      modal.classList.add('open');
+      document.getElementById('memberName').value = '';
+      document.getElementById('memberMobile').value = '';
+    }
+
+    /* ================= CHIT DETAILS LOAD ================= */
+    async function loadChitDetails() {
+      const planId = sessionStorage.getItem('activePlanId');
+      if (!planId || !chitId) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/chits/${planId}`, { headers: authHeaders() });
+        if (!res.ok) return; // Silent fail, not critical
+
+        const chits = await res.json();
+        const currentChit = chits.find(c => c._id === chitId);
+
+        if (currentChit) {
+          activeChit = currentChit; // Store globally
+          const display = document.getElementById('chitAmountDisplay');
+          const val = document.getElementById('amountValue');
+
+          // Format currency
+          const formatted = new Intl.NumberFormat('en-IN', {
+            style: 'currency',
+            currency: 'INR',
+            maximumFractionDigits: 0
+          }).format(currentChit.startAmount);
+
+          val.textContent = formatted;
+          display.style.display = 'flex';
+        }
+      } catch (e) {
+        console.error("Error loading chit details", e);
+      }
+    }
+
+    // Call on load
+    loadChitDetails();
+
+    function closeModal() {
+      modal.classList.remove('open');
+    }
+
+    document.getElementById('addMemberBtn').onclick = openModal;
+
+    /* ================= ADD MEMBER ================= */
+    async function saveMember() {
+      const name = document.getElementById('memberName').value.trim();
+      const mobile = document.getElementById('memberMobile').value.trim();
+
+      if (!name || !/^\d{10}$/.test(mobile)) {
+        showNotify('Enter valid name and 10-digit mobile number', 'Validation');
+        return;
+      }
+
+      // Check for duplicate mobile in current list
+      const exists = allMembers.some(m => m.mobile === mobile);
+      if (exists) {
+        showNotify('Mobile number exists', 'Duplicate');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/members`, {
+          method: 'POST',
+          headers: authHeaders(),
+          body: JSON.stringify({ chitId, name, mobile })
+        });
+
+        if (!res.ok) throw new Error('Create failed');
+
+        closeModal();
+        loadMembers();
+
+      } catch (err) {
+        showNotify('Failed to add member', 'Error');
+        console.error(err);
+      }
+    }
+
+    /* ================= DELETE CHIT ================= */
+    const delChitModal = document.getElementById('deleteChitModal');
+
+    function confirmDeleteChit() {
+      delChitModal.classList.add('open');
+    }
+
+    function closeDeleteChitModal() {
+      delChitModal.classList.remove('open');
+    }
+
+    async function deleteChit() {
+      try {
+        const res = await fetch(`${API_BASE}/chits/${chitId}`, {
+          method: 'DELETE',
+          headers: authHeaders()
+        });
+
+        if (!res.ok) throw new Error('Failed to delete chit');
+
+        location.href = 'chits.html';
+      } catch (err) {
+        showNotify(err.message, 'Error');
+        closeDeleteChitModal();
+      }
+    }
+
+    /* ================= INIT ================= */
+    /* ================= NAVBAR ================= */
+    // NAVBAR & SIDEBAR LOGIC
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+      document.getElementById('sidebarOverlay').classList.toggle('open');
+    }
+
+    const profileMenuBtn = document.getElementById('profileMenuBtn');
+    const profileDropdown = document.getElementById('profileDropdown');
+
+    if (profileMenuBtn) {
+      profileMenuBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        profileDropdown.classList.toggle('show');
+      });
+    }
+
+    document.addEventListener('click', () => {
+      if (profileDropdown) profileDropdown.classList.remove('show');
+    });
+
+    // Load Avatar Initial
+    fetch(`${API_BASE}/auth/me`, { headers: authHeaders() })
+      .then(r => r.json())
+      .then(user => {
+        const init = user.name ? user.name[0].toUpperCase() : '?';
+        const el = document.getElementById('headerAvatar');
+        if (el) el.textContent = init;
+      }).catch(() => { });
+
+    function logout() {
+      localStorage.removeItem('token');
+      sessionStorage.clear();
+      location.href = 'index.html';
+    }
+
+    /* ================= INIT ================= */
+    loadMembers();
+  </script>
+
+</body>
+
+</html>

@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="icon" type="image/png" href="images/sskicon.png">
+    <title>Chitly – Admin Login</title>
+
+    <style>
+        :root {
+            --bg: #f6f3ec;
+            --card: #fff;
+            --accent: #d2b89b;
+            --text: #3a251b;
+            --error: #b12d3b;
+            --ok: #0b7a3b;
+        }
+
+        body {
+            margin: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg);
+            font-family: system-ui, Arial;
+            color: var(--text);
+        }
+
+        .card {
+            width: 96%;
+            max-width: 420px;
+            background: var(--card);
+            border-radius: 12px;
+            padding: 22px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            text-align: center;
+        }
+
+        .logo {
+            width: 70%;
+            height: 100px;
+            margin-left: -10px;
+            background-size: cover;
+            border-radius: 12px;
+        }
+
+        h1 {
+            font-size: 1.2rem;
+            margin-bottom: 4px;
+        }
+
+        p.subtitle {
+            margin-bottom: 14px;
+            color: #6b5a4a;
+            font-size: .95rem;
+        }
+
+        .field {
+            text-align: left;
+            margin-bottom: 12px;
+        }
+
+        label {
+            display: block;
+            font-size: .8rem;
+            margin-bottom: 6px;
+            opacity: .8;
+        }
+
+        input {
+            width: 92%;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 0, 0, 0.12);
+            font-size: 1rem;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(210, 184, 155, .35);
+        }
+
+        .btn {
+            width: 100%;
+            margin-top: 6px;
+            padding: 10px;
+            border-radius: 9px;
+            background: linear-gradient(135deg, #ffe0d5, #ffeedf);
+            border: 1px solid rgba(210, 184, 155, 1);
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .btn:disabled {
+            opacity: .6;
+            cursor: not-allowed;
+        }
+
+        .msg {
+            margin-top: 8px;
+            font-size: .85rem;
+            display: none;
+        }
+
+        .msg.error {
+            color: var(--error);
+        }
+
+        .msg.ok {
+            color: var(--ok);
+        }
+
+        @media(min-width:900px) {
+            .card {
+                padding: 28px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="card">
+        <div style="display: flex; justify-content: center; align-items: center;">
+            <div class="logo" style="background-image:url('images/chitly.png');"></div>
+        </div>
+
+        <h1>Admin Login</h1>
+        <p class="subtitle">Protected Area</p>
+
+        <!-- EMAIL -->
+        <div class="field">
+            <label for="email">Email</label>
+            <input id="email" type="email" placeholder="admin email" />
+        </div>
+
+        <!-- PASSWORD -->
+        <div class="field">
+            <label for="password">Password</label>
+            <input id="password" type="password" placeholder="admin password" />
+        </div>
+
+        <button class="btn" id="submitBtn">Login</button>
+
+        <div class="msg error" id="errorMsg"></div>
+        <div class="msg ok" id="okMsg"></div>
+
+        <div style="margin-top:20px;">
+            <a href="index.html" style="font-size:0.85rem; color:#6b5a4a;">Back to Chitly</a>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:4000/api';
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const submitBtn = document.getElementById('submitBtn');
+        const errorMsg = document.getElementById('errorMsg');
+        const okMsg = document.getElementById('okMsg');
+
+        function showError(msg) {
+            errorMsg.textContent = msg;
+            errorMsg.style.display = 'block';
+            okMsg.style.display = 'none';
+        }
+
+        function showOk(msg) {
+            okMsg.textContent = msg;
+            okMsg.style.display = 'block';
+            errorMsg.style.display = 'none';
+        }
+
+        submitBtn.addEventListener('click', async () => {
+            submitBtn.disabled = true;
+            errorMsg.style.display = 'none';
+            okMsg.style.display = 'none';
+
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+
+            if (!email || !password) {
+                showError('Credentials required');
+                submitBtn.disabled = false;
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/auth/admin-login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                // Parse response only when needed (faster perceived UX)
+                if (!res.ok) {
+                    const data = await res.json().catch(() => ({}));
+                    throw new Error(data.error || 'Login failed');
+                }
+
+                const data = await res.json();
+                localStorage.setItem('adminToken', data.token);
+                showOk('Admin Login Successful');
+                window.location.href = 'admin-dashboard.html';
+
+
+            } catch (err) {
+                showError(err.message);
+            } finally {
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+
+</html>

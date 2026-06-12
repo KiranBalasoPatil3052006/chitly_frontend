@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Chitly – Create Chit</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="images/sskicon.png">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg-gradient: linear-gradient(135deg, #fdf3e7, #f7e4cf);
+            --text: #3a251b;
+            --accent: #d2b89b;
+            --card: #fff7ee;
+            --error: #b12d3b;
+            --nav-text-light: #7a5b47;
+            --card-bg: #fff7ee;
+        }
+
+        body {
+            font-family: system-ui, Arial;
+            background: var(--bg-gradient);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* NAVBAR & SIDEBAR */
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: rgba(245, 239, 230, 0.96);
+            backdrop-filter: blur(6px);
+            border-bottom: 1px solid rgba(210, 184, 155, 0.7);
+            padding: 10px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand {
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+        }
+
+        .desktop-menu {
+            display: none;
+            align-items: center;
+            gap: 16px;
+        }
+
+        /* Mobile Hamburger */
+        .hamburger {
+            display: block;
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 30px;
+            height: 24px;
+            position: relative;
+        }
+
+        .hamburger span,
+        .hamburger::before,
+        .hamburger::after {
+            content: '';
+            display: block;
+            width: 100%;
+            height: 2px;
+            background: var(--text);
+            position: absolute;
+            left: 0;
+            transition: 0.2s;
+        }
+
+        .hamburger::before {
+            top: 0;
+        }
+
+        .hamburger span {
+            top: 10px;
+        }
+
+        .hamburger::after {
+            bottom: 0;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100vh;
+            background: #fff;
+            z-index: 100;
+            box-shadow: 2px 0 12px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            transition: left 0.3s ease;
+        }
+
+        .sidebar.open {
+            left: 0;
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 90;
+            display: none;
+        }
+
+        .sidebar-overlay.open {
+            display: block;
+        }
+
+        .sidebar-links {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 40px;
+        }
+
+        .sidebar-links a {
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .sidebar-links a.active {
+            color: #d2b89b;
+        }
+
+        /* Desktop View */
+        @media (min-width: 768px) {
+            .hamburger {
+                display: none;
+            }
+
+            .desktop-menu {
+                display: flex;
+            }
+
+            .desktop-links {
+                display: flex;
+                gap: 16px;
+            }
+
+            .desktop-links a {
+                text-decoration: none;
+                color: var(--text);
+                font-weight: 600;
+                padding: 6px 12px;
+                border-radius: 20px;
+                transition: background .2s;
+            }
+
+            .desktop-links a:hover,
+            .desktop-links a.active {
+                background: #fff7ee;
+                color: #d2b89b;
+            }
+
+            .profile-menu {
+                position: relative;
+                cursor: pointer;
+            }
+
+            .profile-circle {
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                background: var(--text);
+                color: #fff;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 700;
+                overflow: hidden;
+            }
+
+            .profile-circle img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .dropdown {
+                position: absolute;
+                top: 110%;
+                right: 0;
+                background: #fff;
+                width: 160px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                border-radius: 12px;
+                padding: 8px 0;
+                display: none;
+                flex-direction: column;
+                border: 1px solid #eee;
+            }
+
+            .dropdown.show {
+                display: flex;
+            }
+
+            .dropdown a {
+                padding: 10px 16px;
+                text-decoration: none;
+                color: var(--text);
+                font-size: 0.9rem;
+            }
+
+            .dropdown a:hover {
+                background: #f9f9f9;
+            }
+        }
+
+        .page {
+            max-width: 520px;
+            margin: 24px auto;
+            padding: 16px;
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, .08);
+        }
+
+        h1 {
+            font-size: 1.4rem;
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            font-size: .9rem;
+            opacity: .8;
+            margin-bottom: 16px;
+        }
+
+        .field {
+            margin-bottom: 12px;
+        }
+
+        label {
+            font-size: .8rem;
+            font-weight: 600;
+            opacity: .8;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 999px;
+            border: 1px solid rgba(210, 184, 155, .9);
+            font-size: .95rem;
+            outline: none;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 14px;
+        }
+
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: .9rem;
+            cursor: pointer;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 12px;
+            padding: 12px;
+            border-radius: 999px;
+            border: 1px solid rgba(210, 184, 155, 1);
+            background: linear-gradient(135deg, #ffe0d5, #ffeedf);
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            opacity: .6;
+            cursor: not-allowed;
+        }
+
+        .preview {
+            margin-top: 14px;
+            font-size: .85rem;
+            background: #fff;
+            padding: 10px;
+            border-radius: 12px;
+            border: 1px solid rgba(210, 184, 155, .5);
+        }
+
+        .error {
+            color: var(--error);
+            font-size: .85rem;
+            margin-top: 8px;
+            display: none;
+        }
+    </style>
+</head>
+
+
+
+<body>
+
+    <header class="navbar">
+        <div class="brand">Chitly</div>
+
+        <!-- Desktop Menu -->
+        <div class="desktop-menu">
+            <nav class="desktop-links">
+                <a href="plans.html" data-i18n="nav_plans">Plans</a>
+                <a href="chits.html" class="active" data-i18n="nav_chits">Chits</a>
+                <a href="feedback.html" data-i18n="nav_feedback">Feedback</a>
+            </nav>
+            <div class="profile-menu" id="profileMenuBtn">
+                <div class="profile-circle" id="headerAvatar">?</div>
+                <div class="dropdown" id="profileDropdown">
+                    <a href="profile.html" data-i18n="nav_profile">My Profile</a>
+                    <a href="#" onclick="logout()" data-i18n="nav_logout">Logout</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Toggle -->
+        <button class="hamburger" id="hamburger" onclick="toggleSidebar()">
+            <span></span>
+        </button>
+    </header>
+
+    <!-- Sidebar HTML -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+    <div class="sidebar" id="sidebar">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+            <div class="brand">Chitly</div>
+            <button onclick="toggleSidebar()"
+                style="background:none;border:none;font-size:1.5rem;cursor:pointer">&times;</button>
+        </div>
+        <nav class="sidebar-links">
+            <a href="plans.html" data-i18n="nav_plans">Plans</a>
+            <a href="chits.html" class="active" data-i18n="nav_chits">Chits</a>
+            <a href="feedback.html" data-i18n="nav_feedback">Feedback</a>
+            <a href="profile.html" data-i18n="nav_profile">My Profile</a>
+            <a href="#" onclick="logout()" data-i18n="nav_logout">Logout</a>
+        </nav>
+    </div>
+
+    <main class="page">
+        <div style="margin-bottom:12px;max-width:520px;margin-left:auto;margin-right:auto">
+            <button class="btn"
+                style="background:transparent;border:none;padding:0;font-size:1rem;color:var(--text);width:auto;margin-top:0"
+                onclick="location.href='chits.html'" data-i18n="back">← Back</button>
+        </div>
+        <div class="card">
+            <h1 data-i18n="create_chit_title">Create Chit</h1>
+            <div class="subtitle" id="planSubtitle"></div>
+
+            <div class="field">
+                <label data-i18n="label_chit_name">Chit Name</label>
+                <input id="chitName" placeholder="Ex: Diwali Gold Chit" />
+            </div>
+
+            <div class="field">
+                <label data-i18n="section_frequency">Frequency</label>
+                <div class="radio-group">
+                    <label><input type="radio" name="frequency" value="week" checked /> <span
+                            data-i18n="freq_weekly">Weekly</span></label>
+                    <label><input type="radio" name="frequency" value="month" /> <span
+                            data-i18n="freq_monthly">Monthly</span></label>
+                </div>
+            </div>
+
+            <div class="field">
+                <label data-i18n="label_duration">Total Periods</label>
+                <input id="totalPeriods" type="number" min="1" placeholder="Ex: 12" />
+            </div>
+
+            <div class="field">
+                <label data-i18n="label_start_date">Start Date</label>
+                <input id="startDate" type="date" />
+                <div id="frequencyInfo" style="font-size:.85rem;margin-top:6px;color:#555;"></div>
+            </div>
+
+            <div class="field">
+                <label data-i18n="label_chit_value">Starting Amount (₹)</label>
+                <input id="startAmount" type="number" min="1" placeholder="Ex: 1000" />
+            </div>
+
+            <div class="field">
+                <label>Compound Increment (₹ per period) <span data-i18n="optional">(Optional)</span></label>
+                <input id="compoundAmount" type="number" min="0" placeholder="Ex: 150" />
+            </div>
+
+            <div class="preview" id="previewBox">
+                <strong data-i18n="header_preview">Preview:</strong><br>
+                Period 1: ₹0<br>
+                Period 2: ₹0
+            </div>
+
+            <button id="createBtn" data-i18n="btn_create_chit">Create Chit</button>
+            <div class="error" id="errorBox"></div>
+        </div>
+    </main>
+
+    <script src="translations.js"></script>
+    <script>
+        const API_BASE = 'http://localhost:4000/api';
+        const token = localStorage.getItem('token');
+        const planId = sessionStorage.getItem('activePlanId');
+        const planName = sessionStorage.getItem('activePlanName');
+
+        if (!token || !planId) location.href = 'plans.html';
+
+        // NAVBAR
+        const hamburger = document.getElementById('hamburger');
+        const navLinks = document.getElementById('navLinks');
+        if (hamburger) {
+            hamburger.addEventListener('click', () => {
+                hamburger.classList.toggle('open');
+                navLinks.classList.toggle('open');
+            });
+        }
+        function logout() {
+            localStorage.removeItem('token');
+            sessionStorage.clear();
+            location.href = 'index.html';
+        }
+
+        document.getElementById('planSubtitle').textContent =
+            `Under plan: ${planName}`;
+
+        const nameEl = document.getElementById('chitName');
+        const totalEl = document.getElementById('totalPeriods');
+        const startEl = document.getElementById('startAmount');
+        const compEl = document.getElementById('compoundAmount');
+        const previewBox = document.getElementById('previewBox');
+        const errorBox = document.getElementById('errorBox');
+        const btn = document.getElementById('createBtn');
+        const frequencyInfo = document.getElementById('frequencyInfo');
+
+        function formatDate(d) {
+            if (!d) return 'N/A';
+            const dt = new Date(d);
+            const dd = String(dt.getDate()).padStart(2, '0');
+            const mm = String(dt.getMonth() + 1).padStart(2, '0');
+            const yy = dt.getFullYear();
+            return `${dd}/${mm}/${yy}`;
+        }
+
+        function buildSchedule(startDate, frequency, totalPeriods) {
+            if (!startDate || !totalPeriods) return [];
+            const s = new Date(startDate);
+            const arr = [];
+            for (let i = 0; i < totalPeriods; i++) {
+                const dt = new Date(s);
+                if (frequency === 'month') {
+                    dt.setMonth(s.getMonth() + i);
+                } else {
+                    // week
+                    dt.setDate(s.getDate() + i * 7);
+                }
+                arr.push(new Date(dt));
+            }
+            return arr;
+        }
+
+        function updateFrequencyInfo() {
+            const frequency = document.querySelector('input[name="frequency"]:checked').value;
+            if (frequency === 'week') {
+                frequencyInfo.textContent = 'For weekly frequency weeks will increment by 7 days.';
+            } else {
+                frequencyInfo.textContent = 'For monthly frequency the day (date) you pick will be used each month (e.g., 2026-01-01 → 2026-02-01).';
+            }
+        }
+
+        function updatePreview() {
+            const start = Number(startEl.value || 0);
+            const comp = Number(compEl.value || 0);
+            const frequency = document.querySelector('input[name="frequency"]:checked').value;
+            const total = Number(totalEl.value) || 3;
+            const startDateVal = document.getElementById('startDate').value;
+            const schedule = buildSchedule(startDateVal, frequency, total);
+
+            // Update info text as well
+            updateFrequencyInfo();
+
+            let html = `<strong>Preview:</strong><br>`;
+            for (let i = 0; i < Math.min(total, 12); i++) {
+                const amt = start + comp * i;
+                const dateStr = schedule[i] ? formatDate(schedule[i]) : 'N/A';
+                html += `Period ${i + 1}: ₹${amt} — ${dateStr}<br>`;
+            }
+
+            if (total > 12) html += `<div style="opacity:.8;margin-top:8px">Showing first 12 of ${total} periods</div>`;
+            previewBox.innerHTML = html;
+        }
+
+        const startDateEl = document.getElementById('startDate');
+
+        // Attach input/change listeners robustly
+        [startEl, compEl, totalEl].forEach(el => { if (el) el.addEventListener('input', updatePreview); });
+        if (startDateEl) startDateEl.addEventListener('input', updatePreview);
+        document.querySelectorAll('input[name="frequency"]').forEach(r => r.addEventListener('change', updatePreview));
+
+        // Initialize preview once
+        updatePreview();
+
+        btn.onclick = async () => {
+            errorBox.style.display = 'none';
+            btn.disabled = true;
+
+            const chitName = nameEl.value.trim();
+            const totalPeriods = Number(totalEl.value);
+            const startAmount = Number(startEl.value);
+            const compoundAmount = Number(compEl.value || 0);
+            const frequency = document.querySelector('input[name="frequency"]:checked').value;
+            const startDateVal = document.getElementById('startDate').value;
+
+            if (!chitName || !totalPeriods || !startAmount || !startDateVal) {
+                errorBox.textContent = 'All fields are required (including Start Date)';
+                errorBox.style.display = 'block';
+                btn.disabled = false;
+                return;
+            }
+
+            if (totalPeriods <= 0 || startAmount <= 0) {
+                errorBox.textContent = 'Periods and Amount must be greater than 0';
+                errorBox.style.display = 'block';
+                btn.disabled = false;
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/chits`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        planId,
+                        chitName,
+                        frequency,
+                        totalPeriods,
+                        startAmount,
+                        compoundAmount,
+                        startDate: startDateVal
+                    })
+                });
+
+                if (!res.ok) throw new Error('Failed to create chit');
+
+                location.href = 'chits.html';
+
+            } catch (err) {
+                errorBox.textContent = err.message;
+                errorBox.style.display = 'block';
+                btn.disabled = false;
+            }
+        };
+
+        // NAVBAR & SIDEBAR LOGIC
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('open');
+        }
+
+        const profileMenuBtn = document.getElementById('profileMenuBtn');
+        const profileDropdown = document.getElementById('profileDropdown');
+
+        if (profileMenuBtn) {
+            profileMenuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                profileDropdown.classList.toggle('show');
+            });
+        }
+
+        document.addEventListener('click', () => {
+            if (profileDropdown) profileDropdown.classList.remove('show');
+        });
+
+        // Load Avatar (Profile Image or Initial)
+        fetch(`${API_BASE}/auth/me`, { headers: { 'Authorization': `Bearer ${token}` } })
+            .then(r => r.json())
+            .then(user => {
+                const el = document.getElementById('headerAvatar');
+                if (el) {
+                    if (user.profileImage) {
+                        el.innerHTML = `<img src="${user.profileImage}" alt="Profile">`;
+                    } else {
+                        el.textContent = user.name ? user.name[0].toUpperCase() : '?';
+                    }
+                }
+            }).catch(() => { });
+    </script>
+
+</body>
+
+</html>

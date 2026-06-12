@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="icon" type="image/png" href="images/sskicon.png">
+    <title>Chitly – Admin Dashboard</title>
+    <style>
+        :root {
+            --bg: #f5efe6;
+            --bg-gradient: linear-gradient(135deg, #fdf3e7, #f7e4cf);
+            --text: #3a251b;
+            --accent: #d2b89b;
+            --card-bg: #fff;
+            --ok: #0b7a3b;
+            --header-bg: rgba(255, 255, 255, 0.9);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: system-ui, Arial;
+            background: var(--bg-gradient);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--header-bg);
+            padding: 16px 24px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            margin-bottom: 24px;
+            border: 1px solid rgba(210, 184, 155, 0.3);
+        }
+
+        .brand {
+            font-size: 1.4rem;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .logout-btn {
+            background: #ffe5e5;
+            color: #b12d3b;
+            border: 1px solid #f5c6cb;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: #fcd2d2;
+        }
+
+        .stats-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: #fff;
+            padding: 16px;
+            border-radius: 12px;
+            flex: 1;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(210, 184, 155, 0.2);
+        }
+
+        .stat-val {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(0, 0, 0, 0.03);
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+        }
+
+        .meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .avatar {
+            width: 32px;
+            height: 32px;
+            background: var(--accent);
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .user-email {
+            font-size: 0.8rem;
+            color: #777;
+        }
+
+        .msg-text {
+            font-size: 1rem;
+            line-height: 1.5;
+            margin-bottom: 16px;
+            background: #fafafa;
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .reply-section {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .replied-badge {
+            background: #e6f4ea;
+            color: var(--ok);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-reply {
+            background: var(--text);
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-reply:hover {
+            opacity: 0.9;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal {
+            background: #fff;
+            padding: 24px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal h3 {
+            margin-bottom: 8px;
+        }
+
+        .modal p {
+            margin-bottom: 16px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            margin-bottom: 16px;
+            font-family: inherit;
+            font-size: 1rem;
+            resize: vertical;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .modal-actions {
+            text-align: right;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .btn-close {
+            background: #f0f0f0;
+            color: #333;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-send {
+            background: var(--ok);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        #loading {
+            text-align: center;
+            margin-top: 40px;
+            color: #888;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="header">
+            <div class="brand">Admin Dashboard</div>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-val" id="totalMsg">0</div>
+                <div class="stat-label">Total Messages</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-val" id="pendingMsg" style="color: #d32f2f;">0</div>
+                <div class="stat-label">Pending Replies</div>
+            </div>
+        </div>
+
+        <div id="loading">Loading feedback...</div>
+        <div id="list"></div>
+    </div>
+
+    <!-- Reply Modal -->
+    <div class="modal-overlay" id="replyModal">
+        <div class="modal">
+            <h3>Ref: <span id="replyRef"></span></h3>
+            <p id="replyingTo"></p>
+            <textarea id="replyText" placeholder="Type your reply..."></textarea>
+            <div class="modal-actions">
+                <button class="btn-close" onclick="closeModal()">Cancel</button>
+                <button class="btn-send" onclick="sendReply()">Send Reply</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SERVER_URL = 'http://localhost:4000/api';
+        const token = localStorage.getItem('adminToken');
+
+        if (!token) window.location.href = 'admin-login.html';
+
+        let currentFeedbackId = null;
+        let pollTimer = null;
+
+        async function loadFeedback(silent = false) {
+            try {
+                const res = await fetch(`${SERVER_URL}/feedback`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.status === 401 || res.status === 403) {
+                    logout();
+                    return;
+                }
+                const data = await res.json();
+                render(data);
+                updateStats(data);
+            } catch (err) {
+                if (!silent) document.getElementById('loading').textContent = 'Error loading feedback.';
+            }
+        }
+
+        function updateStats(list) {
+            document.getElementById('totalMsg').textContent = list.length;
+            const pending = list.filter(i => !i.adminReply).length;
+            const pEl = document.getElementById('pendingMsg');
+            pEl.textContent = pending;
+            pEl.style.color = pending > 0 ? '#d32f2f' : '#0b7a3b';
+        }
+
+        function render(list) {
+            const container = document.getElementById('list');
+
+            // Remove loading text if it's there
+            const loading = document.getElementById('loading');
+            if (loading) loading.style.display = 'none';
+
+            if (list.length === 0) {
+                if (container.children.length === 0) {
+                    container.innerHTML = '<p id="noMsg" style="text-align:center;color:#888">No messages yet.</p>';
+                }
+                return;
+            }
+
+            const noMsg = document.getElementById('noMsg');
+            if (noMsg) noMsg.remove();
+
+            // Preserving input focus logic
+            if (document.getElementById('replyModal').style.display === 'flex') {
+                return;
+            }
+
+            // Iterate through list (Newest First from server)
+            // We want to PREPEND new items if they don't exist, but since list is sorted,
+            // iterating naturally and appending if empty works, but "smart updating" 
+            // a sorted list usually means checking order.
+
+            // Simplest approach for "Inbox" (Newest Top):
+            // Iterate list. If item exists, update. If not, insert at correct index.
+            // Since server returns sorted, we can just sync the DOM with the list order.
+
+            list.forEach((item, index) => {
+                let card = document.getElementById(`card-${item._id}`);
+
+                if (card) {
+                    // Update if status changed (e.g. Replied)
+                    const badge = card.querySelector('.replied-badge');
+                    if (!badge && item.adminReply) {
+                        // It was unreplied, now replied. Update UI.
+                        const replySection = card.querySelector('.reply-section');
+                        replySection.innerHTML = `
+                             <div class="replied-badge">
+                                 <span>&#10003; Replied</span>
+                            </div>
+                        `;
+
+                        // Insert the reply text too
+                        const msgText = card.querySelector('.msg-text');
+                        msgText.insertAdjacentHTML('afterend', `
+                            <div style="background:#f0fdf4; padding:10px; border-radius:8px; margin-bottom:12px; border:1px solid #dcfce7;">
+                                <strong style="color:#0b7a3b; font-size:0.8rem;">Your Reply:</strong>
+                                <div style="font-size:0.95rem;">${item.adminReply}</div>
+                            </div>
+                        `);
+                    }
+                } else {
+                    // Create New Card
+                    const date = new Date(item.createdAt).toLocaleString();
+                    const div = document.createElement('div');
+                    div.className = 'card';
+                    div.id = `card-${item._id}`;
+
+                    const initials = item.userName ? item.userName[0].toUpperCase() : '?';
+
+                    let actionHtml = '';
+                    if (item.adminReply) {
+                        actionHtml = `
+                            <div class="replied-badge">
+                                 <span>&#10003; Replied</span>
+                            </div>
+                        `;
+                    } else {
+                        // Escape quotes for onclick
+                        const safeMsg = item.message.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                        const safeName = item.userName.replace(/'/g, "\\'");
+                        actionHtml = `<button class="btn-reply" onclick="openReply('${item._id}', '${safeName}', '${safeMsg}')">Reply</button>`;
+                    }
+
+                    div.innerHTML = `
+                    <div class="meta">
+                        <div class="user-info">
+                            <div class="avatar">${initials}</div>
+                            <div class="user-details">
+                                <div class="user-name">${item.userName}</div>
+                                <div class="user-email">${item.userEmail}</div>
+                            </div>
+                        </div>
+                        <div style="font-size:0.8rem; color:#888;">${date}</div>
+                    </div>
+                    <div class="msg-text">${item.message}</div>
+                    
+                    ${item.adminReply ? `<div style="background:#f0fdf4; padding:10px; border-radius:8px; margin-bottom:12px; border:1px solid #dcfce7;">
+                        <strong style="color:#0b7a3b; font-size:0.8rem;">Your Reply:</strong>
+                        <div style="font-size:0.95rem;">${item.adminReply}</div>
+                    </div>` : ''}
+
+                    <div class="reply-section">
+                        ${actionHtml}
+                    </div>
+                `;
+
+                    // Insert at correct position (index)
+                    // If index is 0, insert before firstChild.
+                    // If index is N, insert before children[N].
+                    if (index === 0) {
+                        container.prepend(div);
+                    } else {
+                        // Find the card currently at this index
+                        const referenceNode = container.children[index];
+                        container.insertBefore(div, referenceNode);
+                    }
+
+                    // Animate In
+                    div.animate([
+                        { opacity: 0, transform: 'translateY(-10px)' },
+                        { opacity: 1, transform: 'translateY(0)' }
+                    ], { duration: 300 });
+                }
+            });
+        }
+
+        function openReply(id, name, originalMsg) {
+            currentFeedbackId = id;
+            document.getElementById('replyingTo').innerHTML = `Replying to <strong>${name}</strong>: "${originalMsg.substring(0, 50)}..."`;
+            document.getElementById('replyRef').textContent = id.slice(-6);
+            document.getElementById('replyText').value = '';
+            document.getElementById('replyModal').style.display = 'flex';
+            document.getElementById('replyText').focus();
+        }
+
+        function closeModal() {
+            document.getElementById('replyModal').style.display = 'none';
+            currentFeedbackId = null;
+            // Immediate refresh
+            loadFeedback(true);
+        }
+
+        async function sendReply() {
+            const text = document.getElementById('replyText').value.trim();
+            if (!text) return;
+
+            // Optimistic UI update could go here, but let's wait for server
+            const btn = document.querySelector('.btn-send');
+            const originalText = btn.textContent;
+            btn.textContent = 'Sending...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`${SERVER_URL}/feedback/${currentFeedbackId}/reply`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ reply: text })
+                });
+
+                if (res.ok) {
+                    closeModal();
+                    loadFeedback(true);
+                } else {
+                    alert('Failed to send reply');
+                }
+            } catch (err) {
+                alert('Error sending reply');
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('adminToken');
+            window.location.href = 'index.html';
+        }
+
+        // Initial Load
+        loadFeedback();
+
+        // Poll every 1 second
+        pollTimer = setInterval(() => {
+            loadFeedback(true);
+        }, 1000);
+
+    </script>
+</body>
+
+</html>

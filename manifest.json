@@ -1,0 +1,22 @@
+{
+  "name": "Chitly",
+  "short_name": "Chitly",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6f3ec",
+  "theme_color": "#d2b89b",
+  "icons": [
+    {
+      "src": "images/sskicon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "images/sskicon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
+

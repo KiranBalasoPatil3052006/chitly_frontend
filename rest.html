@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Chitly – Member Detail</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="images/sskicon.png">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #f5efe6;
+            --bg-gradient: linear-gradient(135deg, #fdf3e7, #f7e4cf);
+            --text: #3a251b;
+            --accent: #d2b89b;
+            --card-bg: #fff7ee;
+            --nav-text-light: #7a5b47;
+        }
+
+        body {
+            font-family: system-ui;
+            background: var(--bg-gradient);
+            color: var(--text);
+            margin: 0;
+        }
+
+        /* NAVBAR & SIDEBAR */
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: rgba(245, 239, 230, 0.96);
+            backdrop-filter: blur(6px);
+            border-bottom: 1px solid rgba(210, 184, 155, 0.7);
+            padding: 10px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand {
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+        }
+
+        .desktop-menu {
+            display: none;
+            align-items: center;
+            gap: 16px;
+        }
+
+        /* Mobile Hamburger */
+        .hamburger {
+            display: block;
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 30px;
+            height: 24px;
+            position: relative;
+        }
+
+        .hamburger span,
+        .hamburger::before,
+        .hamburger::after {
+            content: '';
+            display: block;
+            width: 100%;
+            height: 2px;
+            background: var(--text);
+            position: absolute;
+            left: 0;
+            transition: 0.2s;
+        }
+
+        .hamburger::before {
+            top: 0;
+        }
+
+        .hamburger span {
+            top: 10px;
+        }
+
+        .hamburger::after {
+            bottom: 0;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100vh;
+            background: #fff;
+            z-index: 100;
+            box-shadow: 2px 0 12px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            transition: left 0.3s ease;
+        }
+
+        .sidebar.open {
+            left: 0;
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 90;
+            display: none;
+        }
+
+        .sidebar-overlay.open {
+            display: block;
+        }
+
+        .sidebar-links {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 40px;
+        }
+
+        .sidebar-links a {
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .sidebar-links a.active {
+            color: #d2b89b;
+        }
+
+        /* Desktop View */
+        @media (min-width: 768px) {
+            .hamburger {
+                display: none;
+            }
+
+            .desktop-menu {
+                display: flex;
+            }
+
+            .desktop-links {
+                display: flex;
+                gap: 16px;
+            }
+
+            .desktop-links a {
+                text-decoration: none;
+                color: var(--text);
+                font-weight: 600;
+                padding: 6px 12px;
+                border-radius: 20px;
+                transition: background .2s;
+            }
+
+            .desktop-links a:hover,
+            .desktop-links a.active {
+                background: #fff7ee;
+                color: #d2b89b;
+            }
+
+            .profile-menu {
+                position: relative;
+                cursor: pointer;
+            }
+
+            .profile-circle {
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                background: var(--text);
+                color: #fff;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 700;
+            }
+
+            .dropdown {
+                position: absolute;
+                top: 110%;
+                right: 0;
+                background: #fff;
+                width: 160px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                border-radius: 12px;
+                padding: 8px 0;
+                display: none;
+                flex-direction: column;
+                border: 1px solid #eee;
+            }
+
+            .dropdown.show {
+                display: flex;
+            }
+
+            .dropdown a {
+                padding: 10px 16px;
+                text-decoration: none;
+                color: var(--text);
+                font-size: 0.9rem;
+            }
+
+            .dropdown a:hover {
+                background: #f9f9f9;
+            }
+        }
+
+        .page {
+            max-width: 1100px;
+            margin: auto;
+            padding: 16px;
+        }
+
+        .profile-card,
+        .grid-card {
+            background: #fff7ee;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 10px 24px rgba(0, 0, 0, .06);
+            margin-bottom: 16px;
+        }
+
+        .avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: #fff;
+            border: 2px solid #d2b89b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin: auto;
+        }
+
+        .amount-chip {
+            display: inline-block;
+            margin-top: 6px;
+            padding: 4px 12px;
+            border-radius: 999px;
+            background: #fff;
+            border: 1px solid #d2b89b;
+            font-size: .8rem;
+            font-weight: 600;
+        }
+
+        .period-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .period-cell {
+            border: 1px solid #d2b89b;
+            border-radius: 8px;
+            padding: 6px;
+            text-align: center;
+            cursor: pointer;
+            background: #fff;
+            font-size: .8rem;
+        }
+
+        .period-cell.paid {
+            background: linear-gradient(135deg, #ffe0d5, #ffeedf);
+            font-weight: 700;
+        }
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 8px;
+            margin-top: 16px;
+            font-size: .9rem;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .4);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal {
+            background: #fff7ee;
+            border-radius: 14px;
+            padding: 16px;
+            width: 90%;
+            max-width: 360px;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        button {
+            padding: 6px 14px;
+            border-radius: 999px;
+            border: 1px solid #d2b89b;
+            background: #fff;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        button.primary {
+            background: linear-gradient(135deg, #ffe0d5, #ffeedf);
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="navbar">
+        <div class="brand">Chitly</div>
+
+        <!-- Desktop Menu -->
+        <div class="desktop-menu">
+            <nav class="desktop-links">
+                <a href="plans.html">Plans</a>
+                <a href="chits.html">Chits</a>
+            </nav>
+            <div class="profile-menu" id="profileMenuBtn">
+                <div class="profile-circle" id="headerAvatar">?</div>
+                <div class="dropdown" id="profileDropdown">
+                    <a href="profile.html">My Profile</a>
+                    <a href="#" onclick="logout()">Logout</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Toggle -->
+        <button class="hamburger" id="hamburger" onclick="toggleSidebar()">
+            <span></span>
+        </button>
+    </header>
+
+    <!-- Sidebar HTML -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+    <div class="sidebar" id="sidebar">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+            <div class="brand">Chitly</div>
+            <button onclick="toggleSidebar()"
+                style="background:none;border:none;font-size:1.5rem;cursor:pointer">&times;</button>
+        </div>
+        <nav class="sidebar-links">
+            <a href="plans.html">Plans</a>
+            <a href="chits.html">Chits</a>
+            <a href="profile.html">My Profile</a>
+            <a href="#" onclick="logout()">Logout</a>
+        </nav>
+    </div>
+
+    <main class="page">
+
+        <button onclick="location.href='members.html'">← Back</button>
+
+        <section class="profile-card">
+            <div class="avatar" id="avatar">M</div>
+            <h2 id="memberName"></h2>
+            <div id="memberMobile"></div>
+            <div id="amountChip"></div>
+            <br>
+            <button class="primary" onclick="generatePdfReceipt()">Download Receipt (PDF)</button>
+        </section>
+
+        <section class="grid-card">
+            <h3 id="gridTitle"></h3>
+            <div class="period-grid" id="periodGrid"></div>
+
+            <div class="summary">
+                <div>Total Periods: <strong id="totalPeriods"></strong></div>
+                <div>Paid Periods: <strong id="paidCount"></strong></div>
+                <div>Pending Periods: <strong id="pendingCount"></strong></div>
+                <div>Total Paid: ₹<strong id="paidAmount"></strong></div>
+                <div>Remaining: ₹<strong id="pendingAmount"></strong></div>
+            </div>
+        </section>
+
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <script>
+        /* ================= CONFIG ================= */
+        const API_BASE = 'http://localhost:4000/api';
+        const token = localStorage.getItem('token');
+        const memberId = new URLSearchParams(location.search).get('id');
+        const headers = { Authorization: `Bearer ${token}` };
+
+        let member, chit;
+
+        /* ================= HELPERS ================= */
+        function logout() {
+            localStorage.clear();
+            location.href = 'index.html';
+        }
+
+        function formatDate(d) {
+            if (!d) return 'N/A';
+            const dt = new Date(d);
+            if (isNaN(dt)) return 'N/A';
+            return `${String(dt.getDate()).padStart(2, '0')}/${String(dt.getMonth() + 1).padStart(2, '0')}/${dt.getFullYear()}`;
+        }
+
+        function computeDueFromChit(period) {
+            if (!chit || !chit.startDate) return null;
+            const start = new Date(chit.startDate);
+            const due = new Date(start);
+            if (chit.frequency === 'month') {
+                due.setMonth(start.getMonth() + (period - 1));
+            } else {
+                due.setDate(start.getDate() + (period - 1) * 7);
+            }
+            return due;
+        }
+
+        function resolveDueDate(payment) {
+            if (payment.dueDate) return new Date(payment.dueDate);
+            if (chit.schedule?.[payment.period - 1]) return new Date(chit.schedule[payment.period - 1]);
+            return computeDueFromChit(payment.period);
+        }
+
+        /* ================= LOAD DATA ================= */
+        async function loadData() {
+            const res = await fetch(`${API_BASE}/members/detail/${memberId}`, { headers });
+            const data = await res.json();
+            member = data.member;
+            chit = data.chit;
+            render();
+        }
+
+        function render() {
+            avatar.textContent = member.name[0].toUpperCase();
+            memberName.textContent = member.name;
+            memberMobile.textContent = `Mobile: ${member.mobile || 'N/A'}`;
+            amountChip.textContent = `₹${chit.startAmount} / ${chit.frequency}`;
+            gridTitle.textContent = `${chit.frequency === 'month' ? 'Monthly' : 'Weekly'} Payments`;
+
+            periodGrid.innerHTML = '';
+            member.payments.forEach(p => {
+                const div = document.createElement('div');
+                div.className = 'period-cell' + (p.paid ? ' paid' : '');
+                const due = resolveDueDate(p);
+                div.innerHTML = `P${p.period}<br>₹${p.totalAmount}<br>${formatDate(due)}`;
+                periodGrid.appendChild(div);
+            });
+
+            const paid = member.payments.filter(p => p.paid);
+            const pending = member.payments.filter(p => !p.paid);
+            totalPeriods.textContent = member.payments.length;
+            paidCount.textContent = paid.length;
+            pendingCount.textContent = pending.length;
+            paidAmount.textContent = paid.reduce((s, p) => s + p.totalAmount, 0);
+            pendingAmount.textContent = pending.reduce((s, p) => s + p.totalAmount, 0);
+        }
+
+        /* ================= PDF ================= */
+        async function generatePdfReceipt() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            doc.setFontSize(16);
+            doc.text('Chitly – Payment Receipt', 14, 20);
+
+            doc.setFontSize(11);
+            doc.text(`Member: ${member.name}`, 14, 32);
+            doc.text(`Mobile: ${member.mobile}`, 14, 40);
+            doc.text(`Chit: ${chit.chitName}`, 14, 48);
+
+            let y = 60;
+            doc.setFont(undefined, 'bold');
+            doc.text('Period', 14, y);
+            doc.text('Due Date', 40, y);
+            doc.text('Amount', 90, y);
+            doc.text('Status', 130, y);
+            y += 8;
+            doc.setFont(undefined, 'normal');
+
+            member.payments.forEach(p => {
+                const due = resolveDueDate(p);
+                doc.text(String(p.period), 14, y);
+                doc.text(formatDate(due), 40, y);
+                doc.text(`₹${p.totalAmount}`, 90, y);
+                doc.text(p.paid ? 'PAID' : 'PENDING', 130, y);
+                y += 8;
+            });
+
+            const next = member.payments.find(p => !p.paid);
+            y += 10;
+            doc.setFont(undefined, 'bold');
+            doc.text(next ? `Next Payment Date: ${formatDate(resolveDueDate(next))}` : 'All payments completed', 14, y);
+
+            doc.save(`Chitly_Receipt_${member.name}.pdf`);
+        }
+
+        /* ================= INIT ================= */
+        // NAVBAR & SIDEBAR LOGIC
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('open');
+        }
+
+        const profileMenuBtn = document.getElementById('profileMenuBtn');
+        const profileDropdown = document.getElementById('profileDropdown');
+
+        if (profileMenuBtn) {
+            profileMenuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                profileDropdown.classList.toggle('show');
+            });
+        }
+
+        document.addEventListener('click', () => {
+            if (profileDropdown) profileDropdown.classList.remove('show');
+        });
+
+        // Load Avatar Initial
+        fetch(`${API_BASE}/auth/me`, { headers: { 'Authorization': `Bearer ${token}` } })
+            .then(r => r.json())
+            .then(user => {
+                const init = user.name ? user.name[0].toUpperCase() : '?';
+                const el = document.getElementById('headerAvatar');
+                if (el) el.textContent = init;
+            }).catch(() => { });
+
+        loadData();
+    </script>
+
+</body>
+
+</html>

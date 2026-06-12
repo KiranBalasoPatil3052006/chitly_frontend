@@ -1,0 +1,687 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="icon" type="image/png" href="images/sskicon.png">
+    <title>Chitly – Feedback</title>
+    <style>
+        :root {
+            --bg: #f5efe6;
+            --bg-gradient: linear-gradient(135deg, #fdf3e7, #f7e4cf);
+            --text: #3a251b;
+            --accent: #d2b89b;
+            --card-bg: #fff7ee;
+            --card-white: #ffffff;
+            --ok: #0b7a3b;
+            --row-hover: rgba(210, 184, 155, .18);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: system-ui, Arial;
+            background: var(--bg-gradient);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* NAVBAR & SIDEBAR (Copied from members.html) */
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: rgba(245, 239, 230, 0.96);
+            backdrop-filter: blur(6px);
+            border-bottom: 1px solid rgba(210, 184, 155, 0.7);
+            padding: 10px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand {
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: var(--text);
+            text-decoration: none;
+        }
+
+        .desktop-menu {
+            display: none;
+            align-items: center;
+            gap: 16px;
+        }
+
+        /* Mobile Hamburger */
+        .hamburger {
+            display: block;
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 30px;
+            height: 24px;
+            position: relative;
+        }
+
+        .hamburger span,
+        .hamburger::before,
+        .hamburger::after {
+            content: '';
+            display: block;
+            width: 100%;
+            height: 2px;
+            background: var(--text);
+            position: absolute;
+            left: 0;
+            transition: 0.2s;
+        }
+
+        .hamburger::before {
+            top: 0;
+        }
+
+        .hamburger span {
+            top: 10px;
+        }
+
+        .hamburger::after {
+            bottom: 0;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 260px;
+            background: #fff;
+            z-index: 100;
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.1);
+            transform: translateX(-105%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar.open {
+            transform: translateX(0);
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 90;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .sidebar-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .sidebar-links a {
+            display: block;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 600;
+            border-radius: 12px;
+            transition: background 0.2s;
+        }
+
+        .sidebar-links a:hover,
+        .sidebar-links a.active {
+            background: #fff7ee;
+            color: #d2b89b;
+        }
+
+        @media (min-width: 768px) {
+            .hamburger {
+                display: none;
+            }
+
+            .desktop-menu {
+                display: flex;
+            }
+
+            .desktop-links {
+                display: flex;
+                gap: 16px;
+            }
+
+            .desktop-links a {
+                text-decoration: none;
+                color: var(--text);
+                font-weight: 600;
+                padding: 6px 12px;
+                border-radius: 20px;
+                transition: background .2s;
+            }
+
+            .desktop-links a:hover,
+            .desktop-links a.active {
+                background: #fff7ee;
+                color: #d2b89b;
+            }
+
+            .profile-menu {
+                position: relative;
+                cursor: pointer;
+            }
+
+            .profile-circle {
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                background: var(--text);
+                color: #fff;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 700;
+                overflow: hidden;
+            }
+
+            .profile-circle img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .dropdown {
+                position: absolute;
+                top: 110%;
+                right: 0;
+                background: #fff;
+                width: 160px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                border-radius: 12px;
+                padding: 8px 0;
+                display: none;
+                flex-direction: column;
+                border: 1px solid #eee;
+            }
+
+            .dropdown.show {
+                display: flex;
+            }
+
+            .dropdown a {
+                padding: 10px 16px;
+                text-decoration: none;
+                color: var(--text);
+                font-size: 0.9rem;
+            }
+
+            .dropdown a:hover {
+                background: #f9f9f9;
+            }
+        }
+
+        /* PAGE CONTENT */
+        .container {
+            max-width: 700px;
+            margin: 20px auto;
+            padding: 0 16px;
+        }
+
+        .header-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .card {
+            background: var(--card-white);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+            margin-bottom: 20px;
+            border: 1px solid rgba(210, 184, 155, 0.2);
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid #ddd;
+            font-family: inherit;
+            font-size: 1rem;
+            box-sizing: border-box;
+            resize: vertical;
+            background: #fafafa;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: #fff;
+        }
+
+        .btn {
+            width: 100%;
+            margin-top: 12px;
+            padding: 14px;
+            background: linear-gradient(135deg, #ffe0d5, #ffeedf);
+            color: var(--text);
+            border: 1px solid rgba(210, 184, 155, 1);
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(210, 184, 155, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .history-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .msg-item {
+            padding: 16px;
+            border-bottom: 1px solid #eee;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .msg-item:last-child {
+            border-bottom: none;
+        }
+
+        .msg-meta {
+            font-size: 0.8rem;
+            color: #888;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .msg-content {
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        .reply-box {
+            margin-top: 12px;
+            background: #f0fdf4;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid #dcfce7;
+        }
+
+        .reply-label {
+            font-size: 0.8rem;
+            color: var(--ok);
+            font-weight: bold;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Toast Notification */
+        .toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 16px;
+            position: fixed;
+            z-index: 100;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            font-size: 0.95rem;
+            opacity: 0;
+            transition: opacity 0.3s, bottom 0.3s;
+        }
+
+        .toast.show {
+            visibility: visible;
+            opacity: 1;
+            bottom: 50px;
+        }
+
+        .toast.error {
+            background-color: #d32f2f;
+        }
+
+        .toast.success {
+            background-color: #388e3c;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <header class="navbar">
+        <a href="index.html" class="brand">Chitly</a>
+
+        <!-- Desktop Menu -->
+        <div class="desktop-menu">
+            <nav class="desktop-links">
+                <a href="plans.html" data-i18n="nav_plans">Plans</a>
+                <a href="chits.html" data-i18n="nav_chits">Chits</a>
+                <a href="feedback.html" class="active" data-i18n="nav_feedback">Feedback</a>
+            </nav>
+            <div class="profile-menu" id="profileMenuBtn">
+                <div class="profile-circle" id="headerAvatar">?</div>
+                <div class="dropdown" id="profileDropdown">
+                    <a href="profile.html" data-i18n="nav_profile">My Profile</a>
+                    <a href="#" onclick="logout()" data-i18n="nav_logout">Logout</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Toggle -->
+        <button class="hamburger" id="hamburger" onclick="toggleSidebar()">
+            <span></span>
+        </button>
+    </header>
+
+    <!-- Sidebar HTML -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+    <div class="sidebar" id="sidebar">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+            <div class="brand">Chitly</div>
+            <button onclick="toggleSidebar()"
+                style="background:none;border:none;font-size:1.5rem;cursor:pointer">&times;</button>
+        </div>
+        <nav class="sidebar-links">
+            <a href="plans.html" data-i18n="nav_plans">Plans</a>
+            <a href="chits.html" data-i18n="nav_chits">Chits</a>
+            <a href="feedback.html" class="active" data-i18n="nav_feedback">Feedback</a>
+            <a href="profile.html" data-i18n="nav_profile">My Profile</a>
+            <a href="#" onclick="logout()" data-i18n="nav_logout">Logout</a>
+        </nav>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="container">
+        <h1 class="header-title" data-i18n="feedback_title">Feedback</h1>
+
+        <div class="card">
+            <textarea id="message" placeholder="Type your message to admin..."></textarea>
+            <button class="btn" id="sendBtn" onclick="sendFeedback()" data-i18n="btn_send">Send Message</button>
+        </div>
+
+        <div class="card">
+            <div class="history-title">
+                <span data-i18n="history_title">Your History</span>
+                <span style="font-size:0.8rem; font-weight:400; color:#888;">Live updates</span>
+            </div>
+            <div id="historyList">Loading...</div>
+        </div>
+    </div>
+
+    <!-- Toast Element -->
+    <div id="toast" class="toast"></div>
+
+    <script src="translations.js"></script>
+    <script>
+        // Define constants first to avoid TDZ errors
+        const SERVER_URL = 'http://localhost:4000/api';
+        const token = localStorage.getItem('token');
+
+        if (!token) window.location.href = 'index.html';
+
+        // POLL INTERVAL (1 Second for "instant" feel)
+        const POLL_INTERVAL = 1000;
+        let pollTimer;
+
+        /* ================= NAVBAR LOGIC ================= */
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('open');
+        }
+
+        const profileMenuBtn = document.getElementById('profileMenuBtn');
+        const profileDropdown = document.getElementById('profileDropdown');
+
+        if (profileMenuBtn) {
+            profileMenuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (profileDropdown) profileDropdown.classList.toggle('show');
+            });
+        }
+
+        document.addEventListener('click', () => {
+            if (profileDropdown) profileDropdown.classList.remove('show');
+        });
+
+        // Initialize Language (Wrapped to prevent blocking)
+        try {
+            initLanguage();
+        } catch (e) {
+            console.error("Translation error:", e);
+        }
+
+        fetch(`${SERVER_URL}/auth/me`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        })
+            .then(r => r.json())
+            .then(user => {
+                const el = document.getElementById('headerAvatar');
+                if (el) {
+                    if (user.profileImage) {
+                        el.innerHTML = `<img src="${user.profileImage}" alt="Profile">`;
+                    } else {
+                        el.textContent = user.name ? user.name[0].toUpperCase() : '?';
+                    }
+                }
+            }).catch(() => { });
+
+        function logout() {
+            localStorage.removeItem('token');
+            location.href = 'index.html';
+        }
+
+        /* ================= FEEDBACK LOGIC ================= */
+        function showToast(msg, type = 'normal') {
+            const toast = document.getElementById("toast");
+            toast.textContent = msg;
+            toast.className = "toast show";
+            if (type === 'error') toast.classList.add('error');
+            if (type === 'success') toast.classList.add('success');
+
+            setTimeout(function () {
+                toast.className = toast.className.replace("show", "");
+            }, 3000);
+        }
+
+        // To track if it's the first load for scrolling purposes
+        let isFirstLoad = true;
+
+        async function loadHistory(silent = false) {
+            try {
+                const res = await fetch(`${SERVER_URL}/feedback/mine`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                // Server returns Newest First. 
+                // For Chat UI (WhatsApp style), we usually want Oldest First (Top to Bottom).
+                // So let's reverse it.
+                data.reverse();
+
+                renderHistory(data);
+            } catch (err) {
+                if (!silent) document.getElementById('historyList').textContent = 'Error loading history.';
+            }
+        }
+
+        function renderHistory(list) {
+            const container = document.getElementById('historyList');
+
+            if (!list || list.length === 0) {
+                if (container.children.length === 0) {
+                    container.innerHTML = '<p id="noMsg" style="text-align:center; color:#888;">No messages yet.</p>';
+                }
+                return;
+            }
+
+            // Remove "No messages" placeholder if it exists and we have messages
+            const noMsg = document.getElementById('noMsg');
+            if (noMsg) noMsg.remove();
+
+            let hasNewMessage = false;
+
+            list.forEach(item => {
+                // Check if message already exists
+                let msgDiv = document.getElementById(`msg-${item._id}`);
+
+                if (msgDiv) {
+                    // Message exists, check if we need to update (e.g. Admin replied)
+                    const existingReply = msgDiv.querySelector('.reply-box');
+                    if (!existingReply && item.adminReply) {
+                        // Add reply dynamically
+                        const rDate = item.repliedAt ? new Date(item.repliedAt).toLocaleDateString() : 'Just now';
+                        const replyHtml = `
+                            <div class="reply-box">
+                                <div class="reply-label">Admin Reply (${rDate}):</div>
+                                <div>${item.adminReply}</div>
+                            </div>
+                        `;
+                        msgDiv.insertAdjacentHTML('beforeend', replyHtml);
+                        // Pulse effect to show update
+                        msgDiv.style.background = '#e8f5e9';
+                        setTimeout(() => msgDiv.style.background = 'transparent', 500);
+                    }
+                } else {
+                    // New Message - Append it
+                    const date = new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    const div = document.createElement('div');
+                    div.id = `msg-${item._id}`;
+                    div.className = 'msg-item';
+
+                    let replyHtml = '';
+                    if (item.adminReply) {
+                        const rDate = item.repliedAt ? new Date(item.repliedAt).toLocaleDateString() : 'Just now';
+                        replyHtml = `
+                        <div class="reply-box">
+                            <div class="reply-label">Admin Reply (${rDate}):</div>
+                            <div>${item.adminReply}</div>
+                        </div>
+                    `;
+                    }
+
+                    div.innerHTML = `
+                    <div class="msg-meta">
+                        <strong>You</strong>
+                        <span>${date}</span>
+                    </div>
+                    <div class="msg-content">${item.message}</div>
+                    ${replyHtml}
+                `;
+                    container.appendChild(div);
+                    hasNewMessage = true;
+                }
+            });
+
+            // Scroll to bottom only on first load or if user sent a new message
+            // or if we detect a new message at the bottom
+            if (isFirstLoad) {
+                window.scrollTo(0, document.body.scrollHeight);
+                isFirstLoad = false;
+            } else if (hasNewMessage) {
+                // Optional: Only scroll if user is already near bottom? 
+                // For now, auto-scroll is standard for "sent" messages.
+                // But for incoming replies, maybe just let it be.
+                // Let's scroll smooth.
+                container.lastElementChild.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        async function sendFeedback() {
+            const msgInput = document.getElementById('message');
+            const text = msgInput.value.trim();
+            const btn = document.getElementById('sendBtn');
+
+            if (!text) return;
+
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`${SERVER_URL}/feedback`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ message: text })
+                });
+
+                if (res.ok) {
+                    msgInput.value = '';
+                    showToast('Message sent successfully!', 'success');
+                    // Reload immediately
+                    loadHistory();
+                } else {
+                    const d = await res.json();
+                    showToast('Failed: ' + (d.error || res.statusText), 'error');
+                }
+            } catch (err) {
+                showToast('Error: ' + err.message, 'error');
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        // Initial Load
+        loadHistory();
+
+        // Start Polling
+        pollTimer = setInterval(() => {
+            loadHistory(true);
+        }, POLL_INTERVAL);
+
+    </script>
+</body>
+
+</html>

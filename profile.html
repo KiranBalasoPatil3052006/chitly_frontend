@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Chitly – Setup Profile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="images/chitly.png">
+
+    <style>
+        :root {
+            --bg: #f5efe6;
+            --bg-gradient: linear-gradient(135deg, #fdf3e7, #f7e4cf);
+            --text: #3a251b;
+            --accent: #d2b89b;
+            --card-bg: #fff7ee;
+            --btn-bg: linear-gradient(135deg, #ffe0d5, #ffeedf);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, Arial, sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .card {
+            background: #fff;
+            width: 100%;
+            max-width: 480px;
+            padding: 32px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ddd;
+            transition: background 0.3s;
+        }
+
+        .dot.active {
+            background: var(--text);
+            transform: scale(1.2);
+        }
+
+        .step {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .step.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(4px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1px solid #ddd;
+            font-size: 1rem;
+            margin-bottom: 16px;
+            outline: none;
+            transition: border-color 0.2s;
+            background: #fafafa;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: var(--accent);
+            background: #fff;
+        }
+
+        select:disabled {
+            background: #eee;
+            opacity: 0.7;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        button {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 999px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .btn-next {
+            background: var(--text);
+            color: #fff;
+        }
+
+        .btn-back {
+            background: transparent;
+            border: 1px solid #ecc;
+            color: #888;
+        }
+
+        button:active {
+            opacity: 0.8;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Error message */
+        .error {
+            color: #b12d3b;
+            font-size: 0.85rem;
+            margin-top: -10px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        /* Profile Summary View */
+        .profile-summary {
+            display: none;
+            text-align: left;
+        }
+
+        .p-row {
+            margin-bottom: 14px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+        }
+
+
+        .p-value {
+            font-size: 1.05rem;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .btn-edit {
+            background: #fff;
+            border: 1px solid var(--accent);
+            color: var(--text);
+            margin-top: 10px;
+        }
+
+        /* Edit Mode Styles: Show all steps effectively as a single form */
+        .edit-mode .step {
+            display: block !important;
+            animation: none;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .edit-mode .step:last-of-type {
+            border-bottom: none;
+        }
+
+        .edit-mode .step-indicator {
+            display: none !important;
+            /* Hide dots in edit mode */
+        }
+
+        .edit-mode .btn-row {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Language Modal removed (injected by translations.js) -->
+
+    <div class="card">
+        <div style="position:absolute; top:20px; right:20px;">
+            <button onclick="openGlobalLanguageModal()"
+                style="background:transparent; border:1px solid #ddd; padding:6px 12px; font-size:0.8rem; border-radius:12px;">
+                <span data-i18n="language">Language</span>
+            </button>
+        </div>
+
+        <div class="header">
+            <h1 id="headerTitle" data-i18n="setup_profile">Setup Profile</h1>
+            <p style="opacity:0.6" data-i18n="intro_text">Let's get to know you better</p>
+        </div>
+
+        <div class="step-indicator" id="dots"></div>
+
+        <!-- READ ONLY SUMMARY VIEW -->
+        <div id="profileSummary" class="profile-summary">
+            <div class="p-row">
+                <div class="p-label" data-i18n="full_name">Full Name</div>
+                <div class="p-value" id="view-name"></div>
+            </div>
+            <div class="p-row">
+                <div class="p-label" data-i18n="company_name">Company Name</div>
+                <div class="p-value" id="view-company">-</div>
+            </div>
+            <div class="p-row">
+                <div class="p-label" data-i18n="contact_number">Contact Number</div>
+                <div class="p-value" id="view-mobile">-</div>
+            </div>
+            <div class="p-row">
+                <div class="p-label" data-i18n="email_address">Email Address</div>
+                <div class="p-value" id="view-email">-</div>
+            </div>
+            <div class="p-row">
+                <div class="p-label" data-i18n="location">Location</div>
+                <div class="p-value" id="view-location">-</div>
+            </div>
+
+            <div class="btn-row">
+                <button type="button" class="btn-back" onclick="location.href='plans.html'"
+                    data-i18n="back">Back</button>
+                <button type="button" class="btn-edit" onclick="enableEditMode()" data-i18n="edit_profile">Edit
+                    Profile</button>
+            </div>
+        </div>
+
+        <form id="profileForm" onsubmit="return false">
+
+            <!-- Step 1: Full Name -->
+            <div class="step active" id="step1">
+                <label data-i18n="full_name">Full Name</label>
+                <input type="text" id="name" data-i18n-placeholder="placeholder_name"
+                    placeholder="Enter your full name">
+            </div>
+
+            <!-- Step 2: Company Name -->
+            <div class="step" id="step2">
+                <label><span data-i18n="company_name">Company Name</span> <span style="font-weight:400;opacity:0.5"
+                        data-i18n="optional">(Optional)</span></label>
+                <input type="text" id="company" data-i18n-placeholder="placeholder_company"
+                    placeholder="E.g. My Chit Fund">
+            </div>
+
+            <!-- Step 3: Contact Number -->
+            <div class="step" id="step3">
+                <label data-i18n="contact_number">Contact Number</label>
+                <input type="tel" id="mobile" data-i18n-placeholder="placeholder_mobile"
+                    placeholder="Enter mobile number">
+            </div>
+
+            <!-- Step 4: Email -->
+            <div class="step" id="step4">
+                <label data-i18n="email_address">Email Address</label>
+                <input type="email" id="email" readonly style="background:#f0f0f0; cursor:not-allowed; opacity:0.7"
+                    title="Email cannot be changed">
+                <p style="font-size:0.75rem; color:#888; margin-top:-10px; margin-bottom:12px"
+                    data-i18n="email_cannot_change">Email cannot be changed.
+                </p>
+            </div>
+
+            <!-- Step 5: Location -->
+            <div class="step" id="step5">
+                <label data-i18n="country">Country</label>
+                <input list="countryList" id="country" data-i18n-placeholder="placeholder_search_country"
+                    placeholder="Type to search country..." onchange="loadStates()">
+                <datalist id="countryList"></datalist>
+
+                <label data-i18n="state">State</label>
+                <input list="stateList" id="state" data-i18n-placeholder="placeholder_search_state"
+                    placeholder="Type to search state..." disabled onchange="loadCities()">
+                <datalist id="stateList"></datalist>
+
+                <label data-i18n="city">City</label>
+                <input list="cityList" id="city" data-i18n-placeholder="placeholder_search_city"
+                    placeholder="Type to search city..." disabled>
+                <datalist id="cityList"></datalist>
+
+                <div class="error" id="locationError"></div>
+            </div>
+
+            <div class="btn-row">
+                <button type="button" class="btn-back" id="prevBtn" onclick="prevStep()" style="display:none"
+                    data-i18n="back">Back</button>
+                <button type="button" class="btn-next" id="nextBtn" onclick="nextStep()" data-i18n="next">Next</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="translations.js"></script>
+    <script>
+        const API_BASE = 'http://localhost:4000/api';
+        const LOCATION_API = 'https://countriesnow.space/api/v0.1/countries';
+
+        let currentStep = 0;
+        const steps = document.querySelectorAll('.step');
+        const dotsContainer = document.getElementById('dots');
+        const nextBtn = document.getElementById('nextBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const token = localStorage.getItem('token');
+
+        let currentUserData = null;
+
+        // State for location
+        let countriesData = [];
+
+        // --- LANGUAGE LOGIC REMOVED (Handled by translations.js) ---
+
+        if (!token) {
+            window.location.href = 'index.html';
+        } else {
+            // Create Dots (only for edit/wizard mode)
+            steps.forEach((_, i) => {
+                const d = document.createElement('div');
+                d.className = `dot ${i === 0 ? 'active' : ''}`;
+                dotsContainer.appendChild(d);
+            });
+
+            // Load Initial User Data
+            (async function init() {
+                try {
+                    const res = await fetch(`${API_BASE}/auth/me`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+
+                    if (!res.ok) {
+                        if (res.status === 401) throw new Error('Session expired. Please login again.');
+                        if (res.status === 404) throw new Error('User not found. Please signup again.');
+                        throw new Error(`Failed to load user data (Status: ${res.status})`);
+                    }
+
+                    const user = await res.json();
+                    currentUserData = user;
+
+                    // Pre-fill Form
+                    document.getElementById('name').value = user.name || '';
+                    document.getElementById('email').value = user.email || '';
+                    if (user.companyName) document.getElementById('company').value = user.companyName;
+                    if (user.mobile) document.getElementById('mobile').value = user.mobile;
+
+                    // Fill View
+                    document.getElementById('view-name').textContent = user.name;
+                    document.getElementById('view-email').textContent = user.email;
+                    document.getElementById('view-company').textContent = user.companyName || '-';
+                    document.getElementById('view-mobile').textContent = user.mobile || '-';
+                    document.getElementById('view-location').textContent =
+                        (user.city && user.state && user.country)
+                            ? `${user.city}, ${user.state}, ${user.country}`
+                            : '-';
+
+                    // DECIDE MODE: If profile complete, show View. Else show Wizard.
+                    if (user.profileComplete) {
+                        showProfileView();
+                    } else {
+                        showWizardMode();
+                    }
+
+                    // Load Countries in background
+                    loadCountries();
+
+                } catch (e) {
+                    console.error(e);
+                    alert(e.message);
+                    // Force logout on auth/missing user errors
+                    if (e.message.includes('Session') || e.message.includes('User not found') || e.message.includes('401') || e.message.includes('404')) {
+                        localStorage.removeItem('token');
+                        location.href = 'index.html';
+                    }
+                }
+            })();
+        }
+
+        function showProfileView() {
+            document.getElementById('headerTitle').setAttribute('data-i18n', 'my_profile');
+            document.getElementById('headerTitle').textContent = t('my_profile'); // immediate update
+
+            document.getElementById('profileSummary').style.display = 'block';
+            document.getElementById('profileForm').style.display = 'none';
+            document.getElementById('dots').style.display = 'none';
+        }
+
+        function showWizardMode() {
+            // If already complete, title is Edit Profile, else Setup
+            const isEdit = currentUserData && currentUserData.profileComplete;
+            const key = isEdit ? 'edit_profile' : 'setup_profile';
+            document.getElementById('headerTitle').setAttribute('data-i18n', key);
+            document.getElementById('headerTitle').textContent = t(key);
+
+            document.getElementById('profileSummary').style.display = 'none';
+            const form = document.getElementById('profileForm');
+            form.style.display = 'block';
+
+            if (isEdit) {
+                // Single Page Edit Mode
+                form.classList.add('edit-mode');
+                document.getElementById('dots').style.display = 'none';
+
+                // Show Save & Cancel buttons at bottom
+                // Logic handled in updateUI mostly, but we need to override step behavior
+            } else {
+                // Wizard Mode
+                form.classList.remove('edit-mode');
+                document.getElementById('dots').style.display = 'flex';
+            }
+
+            // Show Cancel button if isEdit
+            if (isEdit) {
+                prevBtn.style.display = 'block';
+                // prevBtn.textContent = 'Cancel'; // Use translation
+                prevBtn.textContent = t('cancel');
+                prevBtn.setAttribute('data-i18n', 'cancel');
+                prevBtn.onclick = cancelEdit;
+
+                // In Edit Mode, Next button becomes Save immediately
+                // nextBtn.textContent = 'Save Profile';
+                nextBtn.textContent = t('save_profile');
+                nextBtn.setAttribute('data-i18n', 'save_profile');
+
+                nextBtn.onclick = () => {
+                    // specific validation for edit mode if needed, or re-use existing
+                    saveProfile();
+                };
+            } else {
+                prevBtn.style.display = 'none';
+                prevBtn.onclick = prevStep; // Back
+                // Restore Next button behavior
+                nextBtn.onclick = nextStep;
+            }
+
+            // If Edit Mode, reset step visibility
+            if (isEdit) {
+                steps.forEach(s => s.classList.add('active')); // Show all
+            } else {
+                updateUI(); // Standard wizard UI
+            }
+        }
+
+        function cancelEdit() {
+            // Reset form to initial data might be good, but for now just go back to view
+            showProfileView();
+            currentStep = 0; // Reset steps
+            updateUI();
+        }
+
+        function enableEditMode() {
+            showWizardMode();
+        }
+
+        /* ================= WIZARD LOGIC ================= */
+        function updateUI() {
+            // Only relevant for Setup Wizard
+            if (document.getElementById('profileForm').classList.contains('edit-mode')) return;
+
+            steps.forEach((s, i) => {
+                s.classList.toggle('active', i === currentStep);
+                dotsContainer.children[i].classList.toggle('active', i === currentStep);
+            });
+
+            const isEdit = currentUserData && currentUserData.profileComplete;
+
+            if (currentStep === 0) {
+                prevBtn.style.display = 'none';
+            } else {
+                prevBtn.style.display = 'block';
+                // prevBtn.textContent = 'Back';
+                prevBtn.textContent = t('back');
+                prevBtn.setAttribute('data-i18n', 'back');
+
+                prevBtn.onclick = prevStep;
+            }
+
+            const isLast = currentStep === steps.length - 1;
+            // nextBtn.textContent = isLast ? 'Save Profile' : 'Next';
+            const nextKey = isLast ? 'save_profile' : 'next';
+            nextBtn.textContent = t(nextKey);
+            nextBtn.setAttribute('data-i18n', nextKey);
+        }
+
+        function nextStep() {
+            if (!validateCurrentStep()) return;
+
+            if (currentStep < steps.length - 1) {
+                currentStep++;
+                updateUI();
+            } else {
+                saveProfile();
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 0) {
+                currentStep--;
+                updateUI();
+            }
+        }
+
+        function validateCurrentStep() {
+            const stepId = steps[currentStep].id;
+
+            if (stepId === 'step1') {
+                const val = document.getElementById('name').value.trim();
+                if (!val) return alert(t('err_name'));
+            }
+            if (stepId === 'step3') {
+                const val = document.getElementById('mobile').value.trim();
+                if (!val) return alert(t('err_mobile'));
+            }
+            if (stepId === 'step5') {
+                const c = document.getElementById('country').value;
+                const s = document.getElementById('state').value;
+                const city = document.getElementById('city').value;
+                if (!c || !s || !city) {
+                    document.getElementById('locationError').textContent = t('err_location');
+                    document.getElementById('locationError').style.display = 'block';
+                    return false;
+                }
+                document.getElementById('locationError').style.display = 'none';
+            }
+            return true;
+        }
+
+        /* ================= LOCATION API ================= */
+        async function loadCountries() {
+            try {
+                // Fetch simple country list first
+                const r1 = await fetch('https://countriesnow.space/api/v0.1/countries/iso');
+                const d1 = await r1.json();
+
+                const list = document.getElementById('countryList');
+                list.innerHTML = '';
+
+                if (!d1.error) {
+                    d1.data.forEach(c => {
+                        const opt = document.createElement('option');
+                        opt.value = c.name;
+                        list.appendChild(opt);
+                    });
+                }
+            } catch (e) {
+                console.error("Location API Error", e);
+            }
+        }
+
+        async function loadStates() {
+            const country = document.getElementById('country').value;
+            const stateList = document.getElementById('stateList');
+            const cityList = document.getElementById('cityList');
+
+            stateList.innerHTML = '';
+            cityList.innerHTML = '';
+            document.getElementById('state').disabled = true;
+            document.getElementById('city').disabled = true;
+
+            if (!country) return;
+
+            // Only show Loading text if we are in wizard mode and it's visible, 
+            // but for autocomplete we just wait. Disabling input is enough cue.
+            document.getElementById('state').placeholder = t('placeholder_search_state'); // restore/set
+
+            try {
+                const res = await fetch(`${LOCATION_API}/states`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ country })
+                });
+                const json = await res.json();
+
+                if (!json.error) {
+                    json.data.states.forEach(s => {
+                        const opt = document.createElement('option');
+                        opt.value = s.name;
+                        stateList.appendChild(opt);
+                    });
+                    document.getElementById('state').disabled = false;
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function loadCities() {
+            const country = document.getElementById('country').value;
+            const state = document.getElementById('state').value;
+            const cityList = document.getElementById('cityList');
+
+            cityList.innerHTML = '';
+            document.getElementById('city').disabled = true;
+
+            if (!state) return;
+
+            try {
+                const res = await fetch(`${LOCATION_API}/state/cities`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ country, state })
+                });
+                const json = await res.json();
+
+                if (!json.error) {
+                    json.data.forEach(c => {
+                        const opt = document.createElement('option');
+                        opt.value = c;
+                        cityList.appendChild(opt);
+                    });
+                    document.getElementById('city').disabled = false;
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        /* ================= SAVE ================= */
+        async function saveProfile() {
+            const payload = {
+                name: document.getElementById('name').value.trim(),
+                companyName: document.getElementById('company').value.trim(),
+                mobile: document.getElementById('mobile').value.trim(),
+                country: document.getElementById('country').value,
+                state: document.getElementById('state').value,
+                city: document.getElementById('city').value
+            };
+
+            nextBtn.disabled = true;
+            nextBtn.textContent = 'Saving...'; // No need to translate processing state aggressively
+
+            try {
+                const res = await fetch(`${API_BASE}/user/profile`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!res.ok) throw new Error('Failed to save');
+
+                // Redirect logic
+                // If it was already complete (editing), just reload or show view
+                if (currentUserData && currentUserData.profileComplete) {
+                    alert(t('success_update'));
+                    location.reload(); // Reload to fetch fresh data and show view
+                } else {
+                    // New setup complete
+                    window.location.href = 'plans.html';
+                }
+
+            } catch (e) {
+                alert(e.message);
+                nextBtn.disabled = false;
+                // Restore button text
+                const isEdit = currentUserData && currentUserData.profileComplete;
+                // nextBtn.textContent = isEdit ? 'Save Profile' : 'Finish Profile';
+                const key = isEdit ? 'save_profile' : 'finish_profile';
+                nextBtn.textContent = t(key);
+            }
+        }
+
+    </script>
+</body>
+
+</html>

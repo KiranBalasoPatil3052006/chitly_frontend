@@ -1,0 +1,707 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="icon" type="image/png" href="images/sskicon.png">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#d2b89b">
+
+    <title>Chitly – Login / Signup</title>
+
+    <style>
+        @keyframes enterFade {
+            from { opacity: 0; transform: translateY(10px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .enter-anim {
+            animation: enterFade 420ms ease-out both;
+            will-change: transform, opacity;
+        }
+
+        .screen-block {
+            position: fixed;
+            inset: 0;
+            background: rgba(246, 243, 236, 0.86);
+            backdrop-filter: blur(6px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .screen-block.active {
+            display: flex;
+        }
+
+        .screen-block .panel {
+            width: 92%;
+            max-width: 420px;
+            background: #fff;
+            border: 1px solid rgba(210, 184, 155, 0.7);
+            border-radius: 14px;
+            padding: 18px;
+            box-shadow: 0 14px 40px rgba(0,0,0,0.10);
+            text-align: center;
+        }
+
+        .spinner {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 4px solid rgba(210, 184, 155, 0.25);
+            border-top-color: rgba(210, 184, 155, 1);
+            animation: spin 0.9s linear infinite;
+            margin: 8px auto 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .screen-block .title {
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .screen-block .sub {
+            font-size: 0.9rem;
+            color: #6b5a4a;
+        }
+
+        :root {
+            --bg: #f6f3ec;
+            --card: #fff;
+            --accent: #d2b89b;
+            --text: #3a251b;
+            --error: #b12d3b;
+            --ok: #0b7a3b;
+        }
+
+        body {
+            margin: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg);
+            font-family: system-ui, Arial;
+            color: var(--text);
+        }
+
+        .card {
+            width: 96%;
+            max-width: 420px;
+            background: var(--card);
+            border-radius: 12px;
+            padding: 22px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            text-align: center;
+        }
+
+        .logo {
+            width: 70%;
+            height: 100px;
+            margin-left: -10px;
+            background-size: cover;
+            border-radius: 12px;
+        }
+
+        h1 {
+            font-size: 1.2rem;
+            margin-bottom: 4px;
+        }
+
+        p.subtitle {
+            margin-bottom: 14px;
+            color: #6b5a4a;
+            font-size: .95rem;
+        }
+
+        .field {
+            text-align: left;
+            margin-bottom: 12px;
+        }
+
+        label {
+            display: block;
+            font-size: .8rem;
+            margin-bottom: 6px;
+            opacity: .8;
+        }
+
+        input {
+            width: 92%;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 0, 0, 0.12);
+            font-size: 1rem;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(210, 184, 155, .35);
+        }
+
+        .btn {
+            width: 100%;
+            margin-top: 6px;
+            padding: 10px;
+            border-radius: 9px;
+            background: linear-gradient(135deg, #ffe0d5, #ffeedf);
+            border: 1px solid rgba(210, 184, 155, 1);
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .btn:disabled {
+            opacity: .6;
+            cursor: not-allowed;
+        }
+
+        .toggle {
+            margin-top: 12px;
+            font-size: .85rem;
+            cursor: pointer;
+            color: #6b5a4a;
+        }
+
+        .toggle span {
+            font-weight: 700;
+            text-decoration: underline;
+        }
+
+        .msg {
+            margin-top: 8px;
+            font-size: .85rem;
+            display: none;
+        }
+
+        .msg.error {
+            color: var(--error);
+        }
+
+        .msg.ok {
+            color: var(--ok);
+        }
+
+        .password-wrapper {
+            position: relative;
+            width: calc(92% + 26px);
+            /* 92% + 24px padding + 2px border to match other inputs */
+        }
+
+        .password-wrapper input {
+            width: 100%;
+            /* Take full width of wrapper */
+            padding-right: 40px;
+            /* Space for icon */
+            box-sizing: border-box;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #6b5a4a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .toggle-password:hover {
+            opacity: 1;
+        }
+
+        /* Language Button */
+        .lang-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #fff;
+            border: 1px solid #d2b89b;
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        @media(min-width:900px) {
+            .card {
+                padding: 28px;
+            }
+        }
+
+        /* Make login card responsive */
+        @media(max-width:420px) {
+            body { margin: 12px; }
+            .card { padding: 16px 14px; }
+            input { width: 100%; }
+            .password-wrapper { width: 100%; }
+            .logo { height: 86px; }
+        }
+
+
+        /* Google Button Styles */
+        .google-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 12px;
+            border-radius: 9px;
+            background: #fff;
+            border: 1px solid #dadce0;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #3c4043;
+        }
+
+        .google-btn:hover {
+            background: #f8f9fa;
+            border-color: #d2e3fc;
+            box-shadow: 0 1px 3px rgba(60, 64, 67, 0.15);
+        }
+
+        .google-btn:active {
+            background: #f1f3f4;
+        }
+
+        .google-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 16px 0;
+            color: #6b5a4a;
+            font-size: 0.85rem;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(0, 0, 0, 0.12);
+        }
+
+        .divider::before {
+            margin-right: 12px;
+        }
+
+        .divider::after {
+            margin-left: 12px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <button class="lang-btn" onclick="openGlobalLanguageModal()" data-i18n="language">Language</button>
+
+    <div class="card">
+        <div style="display: flex; justify-content: center; align-items: center;">
+            <div class="logo" id="logoElement" style="background-image:url('images/chitly.png'); cursor:pointer;"></div>
+        </div>
+
+        <h1 id="title" data-i18n="login_title_login">Login</h1>
+        <p class="subtitle" id="subtitle" data-i18n="login_subtitle_login">Your Chit Manager</p>
+
+        <!-- GOOGLE SIGN-IN BUTTON -->
+        <button class="google-btn" id="googleSignInBtn" type="button">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path fill="#4285F4"
+                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                <path fill="#34A853"
+                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                <path fill="#FBBC05"
+                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                <path fill="#EA4335"
+                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+            </svg>
+            <span id="googleBtnText" data-i18n="login_google_login">Login with Google</span>
+        </button>
+
+        <div class="divider" data-i18n="login_or">or</div>
+
+        <!-- NAME (signup only) -->
+        <div class="field" id="nameField" style="display:none">
+            <label for="name" data-i18n="login_label_name">Name</label>
+            <input id="name" type="text" placeholder="Your full name" data-i18n-placeholder="login_placeholder_name" />
+        </div>
+
+        <!-- EMAIL -->
+        <div class="field">
+            <label for="email" data-i18n="login_label_email">Email</label>
+            <input id="email" type="email" autocomplete="email" placeholder="email"
+                data-i18n-placeholder="login_placeholder_email" />
+        </div>
+
+        <!-- PASSWORD -->
+        <div class="field">
+            <label for="password" data-i18n="login_label_password">Password</label>
+            <div class="password-wrapper">
+                <input id="password" type="password" autocomplete="current-password" placeholder="password"
+                    data-i18n-placeholder="login_placeholder_password" />
+                <div class="toggle-password" id="togglePasswordBtn">
+                    <!-- Eye Icon (Show) -->
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="eye-open" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                    <!-- Eye Off Icon (Hide) - Hidden by default -->
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="eye-closed" style="display:none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path
+                            d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24">
+                        </path>
+                        <line x1="1" y1="1" x2="23" y2="23"></line>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn" id="submitBtn" data-i18n="login_btn_login">Login</button>
+
+        <div class="msg error" id="errorMsg"></div>
+        <div class="msg ok" id="okMsg"></div>
+
+        <div class="toggle" id="toggleMode">
+            <span data-i18n="login_new_here">New here?</span> <span style="text-decoration: underline"
+                data-i18n="login_link_signup">Sign up</span>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+
+    <script src="translations.js"></script>
+    <script>
+        /* ================= FIREBASE CONFIG ================= */
+        const firebaseConfig = {
+            apiKey: "AIzaSyDL20bno1gabohYDIdShxfrJFOXpy3HWcs",
+            authDomain: "chitly-fb81d.firebaseapp.com",
+            projectId: "chitly-fb81d",
+            storageBucket: "chitly-fb81d.firebasestorage.app",
+            messagingSenderId: "20985478520",
+            appId: "1:20985478520:web:846c3cc542b9029c135c8d",
+            measurementId: "G-220C81HMQ8"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        /* ================= CONFIG ================= */
+        const API_BASE = 'http://localhost:4000/api';
+
+        const screenBlock = (() => {
+            const el = document.createElement('div');
+            el.className = 'screen-block';
+            el.id = 'screenBlock';
+            el.innerHTML = `
+                <div class="panel">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <div class="title" id="screenTitle">Entering…</div>
+                    <div class="sub" id="screenSub">Please wait</div>
+                </div>
+            `;
+            document.body.appendChild(el);
+            return el;
+        })();
+
+        function showEnteringScreen() {
+            if (!screenBlock.classList.contains('active')) screenBlock.classList.add('active');
+        }
+
+        // Auto-redirect if already logged in
+        if (localStorage.getItem('token')) {
+            showEnteringScreen();
+            window.location.href = 'plans.html';
+        }
+
+
+        /* ================= STATE ================= */
+        let mode = 'login'; // or signup
+
+        /* ================= ELEMENTS ================= */
+        const title = document.getElementById('title');
+        const subtitle = document.getElementById('subtitle');
+        const nameField = document.getElementById('nameField');
+        const nameInput = document.getElementById('name');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const submitBtn = document.getElementById('submitBtn');
+        const toggleMode = document.getElementById('toggleMode');
+        const errorMsg = document.getElementById('errorMsg');
+        const okMsg = document.getElementById('okMsg');
+
+        /* ================= PASSWORD TOGGLE LOGIC ================= */
+        const togglePasswordBtn = document.getElementById('togglePasswordBtn');
+        const eyeOpen = togglePasswordBtn.querySelector('.eye-open');
+        const eyeClosed = togglePasswordBtn.querySelector('.eye-closed');
+
+        togglePasswordBtn.addEventListener('click', () => {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+
+            if (type === 'text') {
+                eyeOpen.style.display = 'none';
+                eyeClosed.style.display = 'block';
+            } else {
+                eyeOpen.style.display = 'block';
+                eyeClosed.style.display = 'none';
+            }
+        });
+
+        /* ================= HELPERS ================= */
+        function showError(msg) {
+            errorMsg.textContent = msg;
+            errorMsg.style.display = 'block';
+            okMsg.style.display = 'none';
+        }
+
+        function showOk(msg) {
+            okMsg.textContent = msg;
+            okMsg.style.display = 'block';
+            errorMsg.style.display = 'none';
+        }
+
+        function clearMsgs() {
+            errorMsg.style.display = 'none';
+            okMsg.style.display = 'none';
+        }
+
+        /* Accept ALL valid emails (RFC-like, not restrictive) */
+        function isValidEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        function setMode(newMode) {
+            mode = newMode;
+            const googleBtnText = document.getElementById('googleBtnText');
+            if (mode === 'signup') {
+                title.textContent = t('login_title_signup');
+                subtitle.textContent = t('login_subtitle_signup');
+                nameField.style.display = 'block';
+                submitBtn.textContent = t('login_btn_signup');
+                toggleMode.innerHTML = `<span data-i18n="login_already_have">${t('login_already_have')}</span> <span style="text-decoration: underline data-i18n="login_link_login">${t('login_link_login')}</span>`;
+                // Update Google button text
+                if (googleBtnText) googleBtnText.textContent = t('login_google_signup') || 'Sign up with Google';
+            } else {
+                title.textContent = t('login_title_login');
+                subtitle.textContent = t('login_subtitle_login');
+                nameField.style.display = 'none';
+                submitBtn.textContent = t('login_btn_login');
+                toggleMode.innerHTML = `<span data-i18n="login_new_here">${t('login_new_here')}</span> <span style="text-decoration: underline" data-i18n="login_link_signup">${t('login_link_signup')}</span>`;
+                // Update Google button text
+                if (googleBtnText) googleBtnText.textContent = t('login_google_login') || 'Login with Google';
+            }
+            // re-apply to get dynamic IDs if needed
+            // But we set textContent using t(), so it's correct for current lang.
+            // If lang changes detailed via event, setMode called again.
+        }
+
+        /* ================= TOGGLE LOGIN / SIGNUP ================= */
+        toggleMode.addEventListener('click', (e) => {
+            clearMsgs();
+            setMode(mode === 'login' ? 'signup' : 'login');
+        });
+
+        /* ================= SUBMIT ================= */
+        submitBtn.addEventListener('click', async () => {
+            clearMsgs();
+            submitBtn.disabled = true;
+
+            const email = emailInput.value.trim().toLowerCase();
+            const password = passwordInput.value;
+            const name = nameInput.value.trim();
+
+            if (!email || !password) {
+                showError(t('login_err_email_password'));
+                submitBtn.disabled = false;
+                return;
+            }
+
+            if (!isValidEmail(email)) {
+                showError(t('login_err_invalid_email'));
+                submitBtn.disabled = false;
+                return;
+            }
+
+            if (password.length < 6) {
+                showError(t('login_err_password_length'));
+                submitBtn.disabled = false;
+                return;
+            }
+
+            if (mode === 'signup' && name.length < 2) {
+                showError(t('login_err_invalid_name'));
+                submitBtn.disabled = false;
+                return;
+            }
+
+            try {
+                const url = mode === 'login'
+                    ? `${API_BASE}/auth/login`
+                    : `${API_BASE}/auth/signup`;
+
+                const body = mode === 'login'
+                    ? { email, password }
+                    : { name, email, password };
+
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Request failed');
+
+                if (mode === 'signup') {
+                    showOk(t('login_msg_success_signup'));
+                    setMode('login');
+                    passwordInput.value = ''; // Clear password, keep email
+                } else {
+                    // Login mode
+                    showEnteringScreen();
+                    localStorage.setItem('token', data.token);
+                    showOk(t('login_msg_success_login'));
+
+                    try {
+                        const meRes = await fetch(`${API_BASE}/auth/me`, { headers: { Authorization: `Bearer ${data.token}` } });
+                        const me = await meRes.json();
+                        // Fast transition: don't wait extra timeout
+                        if (me.profileComplete) window.location.href = 'plans.html';
+                        else window.location.href = 'profile.html';
+                    } catch (e) {
+                        window.location.href = 'plans.html';
+                    }
+                }
+
+
+            } catch (err) {
+                showError(err.message);
+            } finally {
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Listen for language changes to update dynamic text
+        window.addEventListener('languageChanged', (e) => {
+            // current mode text refresh
+            setMode(mode);
+        });
+
+
+        /* ================= SECRET ADMIN LOGIN ================= */
+        const logo = document.getElementById('logoElement');
+        let clickCount = 0;
+        let clickTimer = null;
+
+        logo.addEventListener('click', () => {
+            clickCount++;
+            if (clickCount === 1) {
+                clickTimer = setTimeout(() => {
+                    clickCount = 0;
+                }, 3000); // 3 seconds to click 5 times
+            }
+
+            if (clickCount === 5) {
+                clearTimeout(clickTimer);
+                clickCount = 0;
+                window.location.href = 'admin-login.html';
+            }
+        });
+
+        /* ================= GOOGLE SIGN-IN (Firebase) ================= */
+        const googleSignInBtn = document.getElementById('googleSignInBtn');
+        const googleProvider = new firebase.auth.GoogleAuthProvider();
+
+        // Register Service Worker (PWA)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker
+                    .register('sw.js')
+                    .catch(() => { /* ignore */ });
+            });
+        }
+
+        // Handle Google Sign-In with Firebase
+        googleSignInBtn.addEventListener('click', async () => {
+
+            clearMsgs();
+            googleSignInBtn.disabled = true;
+            googleSignInBtn.style.opacity = '0.6';
+
+            try {
+                // Sign in with Google popup
+                const result = await firebase.auth().signInWithPopup(googleProvider);
+                const user = result.user;
+
+                // Get Firebase ID token
+                const idToken = await user.getIdToken();
+
+                // Send token to our backend
+                const res = await fetch(`${API_BASE}/auth/google`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        credential: idToken,
+                        email: user.email,
+                        name: user.displayName,
+                        googleId: user.uid,
+                        photoURL: user.photoURL
+                    })
+                });
+
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Google login failed');
+
+                showEnteringScreen();
+                localStorage.setItem('token', data.token);
+                showOk(t('login_msg_success_login') || 'Login successful!');
+
+                // Check if profile is complete (fast)
+                try {
+                    const meRes = await fetch(`${API_BASE}/auth/me`, {
+                        headers: { Authorization: `Bearer ${data.token}` }
+                    });
+                    const me = await meRes.json();
+                    if (me.profileComplete) window.location.href = 'plans.html';
+                    else window.location.href = 'profile.html';
+                } catch (e) {
+                    window.location.href = 'plans.html';
+                }
+
+
+            } catch (err) {
+                console.error('Google Sign-In error:', err);
+                if (err.code !== 'auth/popup-closed-by-user') {
+                    showError(err.message || 'Google sign-in failed');
+                }
+                googleSignInBtn.disabled = false;
+                googleSignInBtn.style.opacity = '1';
+            }
+        });
+    </script>
+</body>
+
+</html>

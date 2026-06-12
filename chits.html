@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Chitly – My Chits</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="images/sskicon.png">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg-gradient: linear-gradient(135deg, #fdf3e7, #f7e4cf);
+            --text: #3a251b;
+            --accent: #d2b89b;
+            --card-bg: #fff7ee;
+        }
+
+        body {
+            font-family: system-ui, Arial;
+            background: var(--bg-gradient);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* NAVBAR & SIDEBAR */
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: rgba(245, 239, 230, 0.96);
+            backdrop-filter: blur(6px);
+            border-bottom: 1px solid rgba(210, 184, 155, 0.7);
+            padding: 10px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand {
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+        }
+
+        .desktop-menu {
+            display: none;
+            align-items: center;
+            gap: 16px;
+        }
+
+        /* Mobile Hamburger */
+        .hamburger {
+            display: block;
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 30px;
+            height: 24px;
+            position: relative;
+        }
+
+        .hamburger span,
+        .hamburger::before,
+        .hamburger::after {
+            content: '';
+            display: block;
+            width: 100%;
+            height: 2px;
+            background: var(--text);
+            position: absolute;
+            left: 0;
+            transition: 0.2s;
+        }
+
+        .hamburger::before {
+            top: 0;
+        }
+
+        .hamburger span {
+            top: 10px;
+        }
+
+        .hamburger::after {
+            bottom: 0;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100vh;
+            background: #fff;
+            z-index: 100;
+            box-shadow: 2px 0 12px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            transition: left 0.3s ease;
+        }
+
+        .sidebar.open {
+            left: 0;
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 90;
+            display: none;
+        }
+
+        .sidebar-overlay.open {
+            display: block;
+        }
+
+        .sidebar-links {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 40px;
+        }
+
+        .sidebar-links a {
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .sidebar-links a.active {
+            color: #d2b89b;
+        }
+
+        /* Desktop View */
+        @media (min-width: 768px) {
+            .hamburger {
+                display: none;
+            }
+
+            .desktop-menu {
+                display: flex;
+            }
+
+            .desktop-links {
+                display: flex;
+                gap: 16px;
+            }
+
+            .desktop-links a {
+                text-decoration: none;
+                color: var(--text);
+                font-weight: 600;
+                padding: 6px 12px;
+                border-radius: 20px;
+                transition: background .2s;
+            }
+
+            .desktop-links a:hover,
+            .desktop-links a.active {
+                background: #fff7ee;
+                color: #d2b89b;
+            }
+
+            .profile-menu {
+                position: relative;
+                cursor: pointer;
+            }
+
+            .profile-circle {
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                background: var(--text);
+                color: #fff;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 700;
+                overflow: hidden;
+            }
+
+            .profile-circle img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .dropdown {
+                position: absolute;
+                top: 110%;
+                right: 0;
+                background: #fff;
+                width: 160px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                border-radius: 12px;
+                padding: 8px 0;
+                display: none;
+                flex-direction: column;
+                border: 1px solid #eee;
+            }
+
+            .dropdown.show {
+                display: flex;
+            }
+
+            .dropdown a {
+                padding: 10px 16px;
+                text-decoration: none;
+                color: var(--text);
+                font-size: 0.9rem;
+            }
+
+            .dropdown a:hover {
+                background: #f9f9f9;
+            }
+        }
+
+        /* PAGE */
+        .page {
+            max-width: 1100px;
+            margin: auto;
+            padding: 16px;
+        }
+
+        .hero {
+            background: radial-gradient(circle at top left, #fff9f2, #f7e4cf);
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            border-radius: 999px;
+            padding: 8px 16px;
+            border: 1px solid rgba(210, 184, 155, 1);
+            background: linear-gradient(135deg, #ffe0d5, #ffeedf);
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* GRID */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+        }
+
+        .chit-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 18px;
+            box-shadow: 0 10px 24px rgba(0, 0, 0, .06);
+            cursor: pointer;
+            transition: transform .12s;
+            text-align: center;
+        }
+
+        .chit-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .chit-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .chit-meta {
+            font-size: .85rem;
+            opacity: .8;
+            margin-top: 6px;
+        }
+
+        .empty {
+            text-align: center;
+            opacity: .75;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="navbar">
+        <div class="brand">Chitly</div>
+
+        <!-- Desktop Menu -->
+        <div class="desktop-menu">
+            <nav class="desktop-links">
+                <a href="plans.html" data-i18n="nav_plans">Plans</a>
+                <a class="active" data-i18n="nav_chits">Chits</a>
+                <a href="feedback.html" data-i18n="nav_feedback">Feedback</a>
+            </nav>
+            <div class="profile-menu" id="profileMenuBtn">
+                <div class="profile-circle" id="headerAvatar">?</div>
+                <div class="dropdown" id="profileDropdown">
+                    <a href="profile.html" data-i18n="nav_profile">My Profile</a>
+                    <a href="#" onclick="logout()" data-i18n="nav_logout">Logout</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Toggle -->
+        <button class="hamburger" id="hamburger" onclick="toggleSidebar()">
+            <span></span>
+        </button>
+    </header>
+
+    <!-- Sidebar HTML -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+    <div class="sidebar" id="sidebar">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+            <div class="brand">Chitly</div>
+            <button onclick="toggleSidebar()"
+                style="background:none;border:none;font-size:1.5rem;cursor:pointer">&times;</button>
+        </div>
+        <nav class="sidebar-links">
+            <a href="plans.html" data-i18n="nav_plans">Plans</a>
+            <a href="chits.html" class="active" data-i18n="nav_chits">Chits</a>
+            <a href="feedback.html" data-i18n="nav_feedback">Feedback</a>
+            <a href="profile.html" data-i18n="nav_profile">My Profile</a>
+            <a href="#" onclick="logout()" data-i18n="nav_logout">Logout</a>
+        </nav>
+    </div>
+
+    <main class="page">
+
+        <section class="hero">
+            <div style="display:flex;align-items:center;gap:10px">
+
+                <button onclick="location.href='plans.html'"
+                    style="padding: 4px 10px; border-radius: 8px; border: none; background: #3a251b;  color: #fff; font-size: 0.95rem; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: opacity 0.2s"
+                    data-i18n="back">
+                    Back
+                </button>
+                <h1 id="planTitle">Chits</h1>
+            </div>
+            <button class="btn" onclick="goCreateChit()" data-i18n="btn_new_chit">+ Create Chit</button>
+        </section>
+
+        <section class="grid" id="chitsGrid"></section>
+
+        <div class="empty" id="emptyMsg" style="display:none" data-i18n="empty_plans">
+            No chits yet. Create your first chit.
+        </div>
+
+    </main>
+
+    <script src="translations.js"></script>
+    <script>
+        const API_BASE = 'http://localhost:4000/api';
+        const token = localStorage.getItem('token');
+        const planId = sessionStorage.getItem('activePlanId');
+        const planName = sessionStorage.getItem('activePlanName') || 'My Plan';
+
+        if (!token || !planId) location.href = 'plans.html';
+
+        document.getElementById('planTitle').textContent = planName;
+
+        function authHeaders() {
+            return { Authorization: `Bearer ${token}` };
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            sessionStorage.clear();
+            location.href = 'index.html';
+        }
+
+        // NAVBAR & SIDEBAR LOGIC
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('open');
+        }
+
+        const profileMenuBtn = document.getElementById('profileMenuBtn');
+        const profileDropdown = document.getElementById('profileDropdown');
+
+        if (profileMenuBtn) {
+            profileMenuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                profileDropdown.classList.toggle('show');
+            });
+        }
+
+        document.addEventListener('click', () => {
+            if (profileDropdown) profileDropdown.classList.remove('show');
+        });
+
+        // Load Avatar (Profile Image or Initial)
+        fetch(`${API_BASE}/auth/me`, { headers: authHeaders() })
+            .then(r => r.json())
+            .then(user => {
+                const el = document.getElementById('headerAvatar');
+                if (el) {
+                    if (user.profileImage) {
+                        el.innerHTML = `<img src="${user.profileImage}" alt="Profile">`;
+                    } else {
+                        el.textContent = user.name ? user.name[0].toUpperCase() : '?';
+                    }
+                }
+            }).catch(() => { });
+
+        function goCreateChit() {
+            location.href = 'create-chit.html';
+        }
+
+        function openChit(chitId) {
+            sessionStorage.setItem('activeChitId', chitId);
+            location.href = 'members.html';
+        }
+
+        async function loadChits() {
+            const res = await fetch(`${API_BASE}/chits/${planId}`, {
+                headers: authHeaders()
+            });
+
+            if (!res.ok) return alert('Failed to load chits');
+
+            const chits = await res.json();
+            const grid = document.getElementById('chitsGrid');
+            const empty = document.getElementById('emptyMsg');
+
+            grid.innerHTML = '';
+
+            if (!chits.length) {
+                empty.style.display = 'block';
+                return;
+            }
+
+            empty.style.display = 'none';
+
+            chits.forEach(c => {
+                const div = document.createElement('div');
+                div.className = 'chit-card';
+                div.innerHTML = `
+        <div class="chit-title">${c.chitName}</div>
+        <div class="chit-meta">
+          ₹${c.startAmount} / ${c.frequency} · ${c.totalPeriods} periods
+        </div>
+      `;
+                div.onclick = () => openChit(c._id);
+                grid.appendChild(div);
+            });
+        }
+
+        loadChits();
+    </script>
+
+</body>
+
+</html>

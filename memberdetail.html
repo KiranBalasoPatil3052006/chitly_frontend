@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Chitly – Member Detail</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="images/sskicon.png">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #f5efe6;
+            --bg-gradient: linear-gradient(135deg, #fdf3e7, #f7e4cf);
+            --text: #3a251b;
+            --accent: #d2b89b;
+            --card-bg: #fff7ee;
+            --nav-text-light: #7a5b47;
+        }
+
+        body {
+            font-family: system-ui;
+            background: var(--bg-gradient);
+            color: var(--text);
+            margin: 0;
+        }
+
+        /* NAVBAR & SIDEBAR */
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: rgba(245, 239, 230, 0.96);
+            backdrop-filter: blur(6px);
+            border-bottom: 1px solid rgba(210, 184, 155, 0.7);
+            padding: 10px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand {
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+        }
+
+        .desktop-menu {
+            display: none;
+            align-items: center;
+            gap: 16px;
+        }
+
+        /* Mobile Hamburger */
+        .hamburger {
+            display: block;
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 30px;
+            height: 24px;
+            position: relative;
+        }
+
+        .hamburger span,
+        .hamburger::before,
+        .hamburger::after {
+            content: '';
+            display: block;
+            width: 100%;
+            height: 2px;
+            background: var(--text);
+            position: absolute;
+            left: 0;
+            transition: 0.2s;
+        }
+
+        .hamburger::before {
+            top: 0;
+        }
+
+        .hamburger span {
+            top: 10px;
+        }
+
+        .hamburger::after {
+            bottom: 0;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100vh;
+            background: #fff;
+            z-index: 100;
+            box-shadow: 2px 0 12px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            transition: left 0.3s ease;
+        }
+
+        .sidebar.open {
+            left: 0;
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 90;
+            display: none;
+        }
+
+        .sidebar-overlay.open {
+            display: block;
+        }
+
+        .sidebar-links {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 40px;
+        }
+
+        .sidebar-links a {
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .sidebar-links a.active {
+            color: #d2b89b;
+        }
+
+        /* Desktop View */
+        @media (min-width: 768px) {
+            .hamburger {
+                display: none;
+            }
+
+            .desktop-menu {
+                display: flex;
+            }
+
+            .desktop-links {
+                display: flex;
+                gap: 16px;
+            }
+
+            .desktop-links a {
+                text-decoration: none;
+                color: var(--text);
+                font-weight: 600;
+                padding: 6px 12px;
+                border-radius: 20px;
+                transition: background .2s;
+            }
+
+            .desktop-links a:hover,
+            .desktop-links a.active {
+                background: #fff7ee;
+                color: #d2b89b;
+            }
+
+            .profile-menu {
+                position: relative;
+                cursor: pointer;
+            }
+
+            .profile-circle {
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                background: var(--text);
+                color: #fff;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 700;
+            }
+
+            .dropdown {
+                position: absolute;
+                top: 110%;
+                right: 0;
+                background: #fff;
+                width: 160px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                border-radius: 12px;
+                padding: 8px 0;
+                display: none;
+                flex-direction: column;
+                border: 1px solid #eee;
+            }
+
+            .dropdown.show {
+                display: flex;
+            }
+
+            .dropdown a {
+                padding: 10px 16px;
+                text-decoration: none;
+                color: var(--text);
+                font-size: 0.9rem;
+            }
+
+            .dropdown a:hover {
+                background: #f9f9f9;
+            }
+        }
+
+        .page {
+            max-width: 1100px;
+            margin: auto;
+            padding: 16px;
+        }
+
+        .profile-card,
+        .grid-card {
+            background: #fff7ee;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 10px 24px rgba(0, 0, 0, .06);
+            margin-bottom: 16px;
+        }
+
+        .profile-card {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+
+        .avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: #fff;
+            border: 2px solid #d2b89b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin: auto;
+        }
+
+        .amount-chip {
+            display: inline-block;
+            margin-top: 6px;
+            padding: 4px 12px;
+            border-radius: 999px;
+            background: #fff;
+            border: 1px solid #d2b89b;
+            font-size: .8rem;
+            font-weight: 600;
+        }
+
+        .period-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .period-cell {
+            border: 1px solid #d2b89b;
+            border-radius: 8px;
+            padding: 6px;
+            text-align: center;
+            cursor: pointer;
+            background: #fff;
+            font-size: .8rem;
+        }
+
+        .period-cell.paid {
+            background: linear-gradient(135deg, #ffe0d5, #ffeedf);
+            font-weight: 700;
+        }
+
+        .details-table {
+            margin-top: 24px;
+            background: #fff;
+            border: 1px solid #e6dace;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .d-row {
+            display: flex;
+            border-bottom: 1px solid #f0e6dd;
+        }
+
+        .d-row:last-child {
+            border-bottom: none;
+        }
+
+        .d-cell {
+            flex: 1;
+            padding: 16px;
+            text-align: center;
+            border-right: 1px solid #f0e6dd;
+        }
+
+        .d-cell:last-child {
+            border-right: none;
+        }
+
+        .d-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: #9c8c7f;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+
+        .d-value {
+            font-size: 1.1rem;
+            color: #3a251b;
+            font-weight: 700;
+        }
+
+        @media (max-width: 600px) {
+            .d-row {
+                flex-wrap: wrap;
+            }
+
+            .d-cell {
+                flex: 1 1 50%;
+                border-bottom: 1px solid #f0e6dd;
+            }
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .4);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal {
+            background: #fff7ee;
+            border-radius: 14px;
+            padding: 16px;
+            width: 90%;
+            max-width: 360px;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        button {
+            padding: 6px 14px;
+            border-radius: 999px;
+            border: 1px solid #d2b89b;
+            background: #fff;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        button.primary {
+            background: linear-gradient(135deg, #ffe0d5, #ffeedf);
+        }
+
+        /* Download Dropdown */
+        .download-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .download-menu {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #fff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border-radius: 12px;
+            padding: 8px;
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+            width: 180px;
+            margin-bottom: 8px;
+            border: 1px solid #eee;
+            z-index: 10;
+        }
+
+        .download-menu.show {
+            display: flex;
+        }
+
+        .download-menu button {
+            width: 100%;
+            text-align: left;
+            border: none;
+            background: transparent;
+            padding: 8px 12px;
+            font-size: 0.9rem;
+            border-radius: 8px;
+        }
+
+        .download-menu button:hover {
+            background: #fff7ee;
+            color: #d2b89b;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="navbar">
+        <div class="brand">Chitly</div>
+
+        <!-- Desktop Menu -->
+        <div class="desktop-menu">
+            <nav class="desktop-links">
+                <a href="plans.html" data-i18n="nav_plans">Plans</a>
+                <a href="chits.html" class="active" data-i18n="nav_chits">Chits</a>
+            </nav>
+            <div class="profile-menu" id="profileMenuBtn">
+                <div class="profile-circle" id="headerAvatar">?</div>
+                <div class="dropdown" id="profileDropdown">
+                    <a href="profile.html" data-i18n="nav_profile">My Profile</a>
+                    <a href="#" onclick="logout()" data-i18n="nav_logout">Logout</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Toggle -->
+        <button class="hamburger" id="hamburger" onclick="toggleSidebar()">
+            <span></span>
+        </button>
+    </header>
+
+    <!-- Sidebar HTML -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+    <div class="sidebar" id="sidebar">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+            <div class="brand">Chitly</div>
+            <button onclick="toggleSidebar()"
+                style="background:none;border:none;font-size:1.5rem;cursor:pointer">&times;</button>
+        </div>
+        <nav class="sidebar-links">
+            <a href="plans.html" data-i18n="nav_plans">Plans</a>
+            <a href="chits.html" class="active" data-i18n="nav_chits">Chits</a>
+            <a href="profile.html" data-i18n="nav_profile">My Profile</a>
+            <a href="#" onclick="logout()" data-i18n="nav_logout">Logout</a>
+        </nav>
+    </div>
+
+    <main class="page">
+        <div style="margin-bottom:12px">
+            <button onclick="location.href='members.html'"
+                style="padding: 8px 16px; border-radius: 8px; border: none; background: #3a251b;  color: #fff; font-size: 0.95rem; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: opacity 0.2s"
+                data-i18n="back">
+                Back
+            </button>
+        </div>
+
+        <section class="profile-card" style="display: flex; flex-direction: column; justify-content: center;">
+            <div class="avatar" id="avatar">M</div>
+            <h2 id="memberName"></h2>
+            <div id="memberMobile"></div>
+            <div class="amount-chip" id="amountChip"></div>
+            <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap; justify-content:center; ;">
+                <button id="downloadPdfBtnProfile" style="display:none;" class="downloadPdfBtn primary"
+                    onclick="generatePdfReceipt()" data-i18n="btn_download_receipt">Download Receipt (PDF)</button>
+                <button onclick="confirmDeleteMember()" style="background:#fff0f0; border-color:#dcb0b0; color:#b12d3b;"
+                    data-i18n="btn_delete_member">Delete Member</button>
+            </div>
+        </section>
+
+        <section class="grid-card">
+            <h3 id="gridTitle"></h3>
+            <div class="period-grid" id="periodGrid"></div>
+
+            <div class="details-table">
+                <div class="d-row">
+                    <div class="d-cell">
+                        <div class="d-label" data-i18n="label_total_periods">Total Periods</div>
+                        <div class="d-value" id="totalPeriods">-</div>
+                    </div>
+                    <div class="d-cell">
+                        <div class="d-label" data-i18n="label_compound">Compound / Period</div>
+                        <div class="d-value">₹<span id="compoundAmt">-</span></div>
+                    </div>
+                </div>
+                <div class="d-row">
+                    <div class="d-cell">
+                        <div class="d-label" data-i18n="label_paid_periods">Paid Periods</div>
+                        <div class="d-value" id="paidCount">-</div>
+                    </div>
+                    <div class="d-cell">
+                        <div class="d-label" data-i18n="label_pending_periods">Pending Periods</div>
+                        <div class="d-value" id="pendingCount">-</div>
+                    </div>
+                </div>
+                <div class="d-row">
+                    <div class="d-cell">
+                        <div class="d-label" data-i18n="label_total_paid">Total Paid</div>
+                        <div class="d-value">₹<span id="paidAmount">-</span></div>
+                    </div>
+                    <div class="d-cell">
+                        <div class="d-label" data-i18n="label_remaining">Remaining</div>
+                        <div class="d-value">₹<span id="pendingAmount">-</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top:20px; text-align:center;">
+                <div class="download-wrapper">
+                    <button class="primary" onclick="toggleDownloadMenu(event)" style="padding: 10px 24px;">
+                        <span data-i18n="btn_download_receipt">Download Receipt</span> ▾
+                    </button>
+                    <div class="download-menu" id="downloadMenu">
+                        <button onclick="generatePdfReceipt()" data-i18n="btn_download_pdf">Download PDF</button>
+                        <button onclick="downloadAsImage()" data-i18n="btn_download_image">Download Image</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- PAYMENT MODAL -->
+    <div class="modal-overlay" id="modal">
+        <div class="modal">
+            <h3 id="modalTitle"></h3>
+            <p id="modalText"></p>
+            <div class="modal-actions">
+                <button onclick="closeModal()" data-i18n="back">Back</button>
+                <button id="confirmPayBtn" class="primary" onclick="confirmToggle()">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- DELETE CONFIRMATION MODAL -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal">
+            <h3 data-i18n="modal_delete_member_title">Delete Member</h3>
+            <p data-i18n="modal_delete_member_msg">Are you sure you want to delete this member? This action cannot be
+                undone.</p>
+            <div class="modal-actions">
+                <button onclick="closeDeleteModal()" data-i18n="cancel">Cancel</button>
+                <button class="primary" onclick="deleteMember()"
+                    style="background:#fff0f0; color:#b12d3b; border-color:#dcb0b0"
+                    data-i18n="btn_delete">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NOTIFICATION MODAL -->
+    <div class="modal-overlay" id="notifyModal">
+        <div class="modal" style="text-align:center">
+            <h3 id="notifyTitle" style="margin-bottom:8px">Message</h3>
+            <p id="notifyText" style="margin-bottom:16px; opacity:.8"></p>
+            <button class="primary" onclick="closeNotify()">OK</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="translations.js"></script>
+    <script>
+        /* ================= SETUP ================= */
+        const API_BASE = 'http://localhost:4000/api';
+        const token = localStorage.getItem('token');
+        const memberId = new URLSearchParams(location.search).get('id');
+
+        /* ================= NOTIFICATION HELPER ================= */
+        const notifyModal = document.getElementById('notifyModal');
+        const notifyTitle = document.getElementById('notifyTitle');
+        const notifyText = document.getElementById('notifyText');
+
+        function showNotify(msg, title = 'Notice') {
+            notifyTitle.textContent = title;
+            notifyText.textContent = msg;
+            notifyModal.classList.add('open');
+        }
+
+        function closeNotify() {
+            notifyModal.classList.remove('open');
+        }
+
+        // NAVBAR
+        const hamburger = document.getElementById('hamburger');
+        const navLinks = document.getElementById('navLinks');
+        if (hamburger) {
+            hamburger.addEventListener('click', () => {
+                hamburger.classList.toggle('open');
+                navLinks.classList.toggle('open');
+            });
+        }
+        function logout() {
+            localStorage.removeItem('token');
+            sessionStorage.clear();
+            location.href = 'index.html';
+        }
+
+        if (!token || !memberId) {
+            showNotify('Missing token or member ID. Redirecting...', 'Error');
+            setTimeout(() => location.href = 'plans.html', 1500);
+        }
+
+        const headers = {
+            'Authorization': `Bearer ${token}`
+        };
+
+        let member, chit, selectedPeriod, ownerProfile;
+
+        // Elements
+        const els = {
+            avatar: document.getElementById('avatar'),
+            memberName: document.getElementById('memberName'),
+            memberMobile: document.getElementById('memberMobile'),
+            amountChip: document.getElementById('amountChip'),
+            gridTitle: document.getElementById('gridTitle'),
+            periodGrid: document.getElementById('periodGrid'),
+            totalPeriods: document.getElementById('totalPeriods'),
+            compoundAmt: document.getElementById('compoundAmt'),
+            paidCount: document.getElementById('paidCount'),
+            pendingCount: document.getElementById('pendingCount'),
+            paidAmount: document.getElementById('paidAmount'),
+            pendingAmount: document.getElementById('pendingAmount'),
+            modal: document.getElementById('modal'),
+            modalTitle: document.getElementById('modalTitle'),
+            modalText: document.getElementById('modalText')
+        };
+
+        async function loadData() {
+            try {
+                console.log('Fetching data...');
+
+                // Parallel Fetch: Details + Owner Profile
+                const [detailRes, meRes] = await Promise.all([
+                    fetch(`${API_BASE}/members/detail/${memberId}`, { headers }),
+                    fetch(`${API_BASE}/auth/me`, { headers })
+                ]);
+
+                if (!detailRes.ok) {
+                    const err = await detailRes.json();
+                    throw new Error(err.error || 'Failed to fetch data');
+                }
+
+                const data = await detailRes.json();
+                console.log('Data received:', data);
+
+                if (!data.member || !data.chit) {
+                    throw new Error('Incomplete data received from server');
+                }
+
+                member = data.member;
+                chit = data.chit;
+
+                // Handle Owner Profile
+                if (meRes.ok) {
+                    try {
+                        ownerProfile = await meRes.json();
+                    } catch (e) { console.error('Error parsing owner profile', e); }
+                }
+
+                console.log('DEBUG CHIT:', chit);
+                console.log('DEBUG MEMBER:', member);
+
+                renderHeader();
+                renderGrid();
+                updateSummary();
+            } catch (err) {
+                console.error('Load Data Error:', err);
+                showNotify(`Error loading data: ${err.message}`, 'Error');
+            }
+        }
+
+        function renderHeader() {
+            els.avatar.textContent = (member.name && member.name[0]) ? member.name[0].toUpperCase() : '?';
+            els.memberName.textContent = member.name || 'Unknown';
+            els.memberMobile.textContent = `Mobile: ${member.mobile || 'N/A'}`;
+            els.amountChip.textContent = `₹${chit.startAmount} / ${chit.frequency}`;
+            els.gridTitle.textContent = `${chit.frequency === 'week' ? 'Weekly' : 'Monthly'} Payments`;
+        }
+
+        function renderGrid() {
+            els.periodGrid.innerHTML = '';
+            if (!member.payments) return;
+
+            member.payments.forEach(p => {
+                const cell = document.createElement('div');
+                cell.className = 'period-cell' + (p.paid ? ' paid' : '');
+                cell.innerHTML = `P${p.period}<br>₹${p.totalAmount}`;
+                cell.onclick = () => openModal(p);
+                els.periodGrid.appendChild(cell);
+            });
+        }
+
+        function openModal(payment) {
+            selectedPeriod = payment.period;
+            els.modal.classList.add('open');
+
+            const confirmBtn = document.getElementById('confirmPayBtn');
+
+            // compute due date and paidAt strings
+            const rawDue = payment.dueDate || (chit && chit.schedule && chit.schedule[payment.period - 1]) || (typeof computeDueFromChit === 'function' ? computeDueFromChit(payment.period) : null);
+            const dueStr = rawDue ? formatDate(new Date(rawDue)) : 'N/A';
+            const paidAtStr = payment.paidAt ? formatDate(new Date(payment.paidAt)) : '-';
+
+            if (payment.paid) {
+                els.modalTitle.textContent = t('modal_mark_paid_title'); // "Mark as Unpaid"
+                // For dynamic messages with variables, we can construct HTML with translated labels
+                // Or simplified:
+                els.modalText.innerHTML = `
+                    <span data-i18n="msg_confirm_unpaid">Confirm marking period ${payment.period} as <strong>UNPAID</strong>?</span><br>
+                    <span data-i18n="label_due_date">Due Date</span>: ${dueStr}<br>
+                    <span data-i18n="label_paid_at">Paid At</span>: ${paidAtStr}
+                `;
+
+                if (confirmBtn) {
+                    confirmBtn.disabled = false;
+                    confirmBtn.style.display = 'inline-block';
+                }
+            } else {
+                // Check if all previous periods are paid
+                const prevUnpaid = member.payments.filter(p => p.period < payment.period && !p.paid);
+                if (prevUnpaid.length > 0) {
+                    const needed = prevUnpaid.map(p => p.period).sort()[0];
+                    const neededDue = (member.payments.find(p => p.period === needed) || {}).dueDate || (chit && chit.schedule && chit.schedule[needed - 1]) || (typeof computeDueFromChit === 'function' ? computeDueFromChit(needed) : null);
+                    const neededDueStr = neededDue ? formatDate(new Date(neededDue)) : 'N/A';
+
+                    els.modalTitle.textContent = t('modal_cannot_paid_title'); // "Cannot mark as Paid"
+                    els.modalText.innerHTML = `
+                        ${t('msg_cannot_paid')
+                            .replace('{period}', payment.period)
+                            .replace('{needed}', needed)
+                            .replace('{neededDueStr}', neededDueStr)}
+                    `;
+                    // Note: Ideally use data-i18n msg logic, but simple replacement works for now if t() returns string.
+                    // For better dynamic updates if language switches while open, we'd need complex localized structure.
+                    // But current approach updates on open.
+
+                    if (confirmBtn) {
+                        confirmBtn.disabled = true;
+                        confirmBtn.style.display = 'inline-block';
+                    }
+                } else {
+                    els.modalTitle.textContent = t('modal_payment_title'); // "Confirm Payment"
+                    els.modalText.innerHTML = `
+                      <span data-i18n="label_period">Period</span> ${payment.period}<br>
+                      <span data-i18n="label_due_date">Due Date</span>: ${dueStr}<br>
+                      <span data-i18n="label_base">Base</span>: ₹${payment.baseAmount}<br>
+                      <span data-i18n="label_compound_amt">Compound</span>: ₹${payment.compoundAmount}<br>
+                      <strong><span data-i18n="label_total">Total</span>: ₹${payment.totalAmount}</strong>
+                    `;
+                    if (confirmBtn) {
+                        confirmBtn.disabled = false;
+                        confirmBtn.style.display = 'inline-block';
+                    }
+                }
+            }
+            // Apply translations just in case we used data-i18n inside innerHTML
+            if (typeof applyGlobalTranslations === 'function') applyGlobalTranslations();
+        }
+
+        function closeModal() {
+            els.modal.classList.remove('open');
+        }
+
+        // DELETE MEMBER LOGIC
+        const deleteModal = document.getElementById('deleteModal');
+
+        function confirmDeleteMember() {
+            deleteModal.classList.add('open');
+        }
+
+        function closeDeleteModal() {
+            deleteModal.classList.remove('open');
+        }
+
+        async function deleteMember() {
+            try {
+                const res = await fetch(`${API_BASE}/member/${memberId}`, {
+                    method: 'DELETE',
+                    headers
+                });
+
+                if (!res.ok) throw new Error('Failed to delete member');
+
+                showNotify('Member deleted', 'Success');
+                setTimeout(() => location.href = 'members.html', 1500);
+            } catch (e) {
+                showNotify(e.message, 'Error');
+                closeDeleteModal();
+            }
+        }
+
+        async function confirmToggle() {
+            try {
+                const res = await fetch(`${API_BASE}/member/${member._id}/pay/${selectedPeriod}`, {
+                    method: 'PUT',
+                    headers
+                });
+
+                if (!res.ok) {
+                    let errMsg = 'Update failed';
+                    try { const json = await res.json(); if (json && json.error) errMsg = json.error; } catch (e) { }
+                    throw new Error(errMsg);
+                }
+
+                closeModal();
+                await loadData();
+            } catch (err) {
+                showNotify(err.message, 'Error');
+            }
+        }
+
+        function updateSummary() {
+            if (!member.payments) return;
+
+            const paid = member.payments.filter(p => p.paid);
+            const pending = member.payments.filter(p => !p.paid);
+
+            els.totalPeriods.textContent = member.payments.length;
+            els.compoundAmt.textContent = chit.compoundAmount;
+            els.paidCount.textContent = paid.length;
+            els.pendingCount.textContent = pending.length;
+            els.paidAmount.textContent = paid.reduce((s, p) => s + p.totalAmount, 0);
+            els.pendingAmount.textContent = pending.reduce((s, p) => s + p.totalAmount, 0);
+        }
+
+        // Helper: check admin flag in JWT token
+        function isAdminToken() {
+            try {
+                const payload = token.split('.')[1];
+                if (!payload) return false;
+                // base64url to base64
+                let b64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+                while (b64.length % 4) b64 += '=';
+                const json = atob(b64);
+                const obj = JSON.parse(json);
+                return obj.isAdmin === true || obj.role === 'admin' || (Array.isArray(obj.roles) && obj.roles.includes('admin'));
+            } catch (e) {
+                return false;
+            }
+        }
+
+        // Load an image and return dataURL (PNG)
+        function getImageDataUrl(src) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    resolve(canvas.toDataURL('image/png'));
+                };
+                img.onerror = reject;
+                img.src = src;
+            });
+        }
+
+        function formatDate(d) {
+            if (!d) return 'N/A';
+            const dt = new Date(d);
+            const dd = String(dt.getDate()).padStart(2, '0');
+            const mm = String(dt.getMonth() + 1).padStart(2, '0');
+            const yy = dt.getFullYear();
+            return `${dd}/${mm}/${yy}`;
+        }
+
+        // Compute due date for a given period from chit if payment.dueDate is missing
+        function computeDueFromChit(period) {
+            try {
+                if (!chit || !chit.startDate) return null;
+                const s = new Date(chit.startDate);
+                if (chit.schedule && chit.schedule.length >= period) {
+                    return chit.schedule[period - 1];
+                }
+                const dt = new Date(s);
+                const i = period - 1;
+                if (chit.frequency === 'month') {
+                    dt.setMonth(s.getMonth() + i);
+                } else {
+                    dt.setDate(s.getDate() + i * 7);
+                }
+                return dt;
+            } catch (e) {
+                return null;
+            }
+        }
+        // Download Dropdown Toggle
+        function toggleDownloadMenu(e) {
+            e.stopPropagation();
+            const menu = document.getElementById('downloadMenu');
+            menu.classList.toggle('show');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            const menu = document.getElementById('downloadMenu');
+            if (menu && menu.classList.contains('show')) {
+                menu.classList.remove('show');
+            }
+        });
+        async function generatePdfReceipt() {
+            try {
+                /* ---------- FETCH LATEST DATA ---------- */
+                const latest = await fetch(`${API_BASE}/members/detail/${memberId}`, { headers });
+                if (!latest.ok) throw new Error('Failed to load data');
+
+                const data = await latest.json();
+                member = data.member;
+                chit = data.chit;
+
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+
+                const W = doc.internal.pageSize.getWidth();
+                const H = doc.internal.pageSize.getHeight();
+                const pad = 36;
+                let y = 40;
+
+                /* ---------- FORMATTERS ---------- */
+                const formatAmt = v =>
+                    'Rs. ' + String(Math.round(v)).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+                const TEXT = '#3a251b';
+                const LINE = '#d2b89b';
+                const SOFT = '#fff7ee';
+
+                /* =====================================================
+                   HEADER — CENTERED
+                ===================================================== */
+
+                // Add Logo
+                try {
+                    const logoData = await getImageDataUrl('images/chitly.png');
+                    const logoW = 110;
+                    const logoH = 60;
+                    doc.addImage(logoData, 'PNG', (W / 2) - (logoW / 2), y, logoW, logoH);
+                    y += logoH + 10;
+                } catch (e) { console.warn('Logo load failed', e); }
+
+
+
+                doc.setFontSize(11);
+                doc.setFont('helvetica', 'normal');
+                doc.text('Payment Receipt', W / 2, y + 18, { align: 'center' });
+
+                doc.setDrawColor(LINE);
+                doc.setLineWidth(1);
+                doc.line(pad, y + 30, W - pad, y + 30);
+
+                y += 60;
+
+                /* =====================================================
+                   ORGANIZER DETAILS — SOFT HEADER
+                ===================================================== */
+
+                if (ownerProfile) {
+
+                    doc.setFillColor(SOFT);
+                    doc.rect(pad, y - 12, W - pad * 2, 26, 'F');
+
+                    doc.setFont('helvetica', 'bold');
+                    doc.setFontSize(11);
+                    doc.setTextColor(TEXT);
+                    doc.text('Organizer Details', pad + 6, y + 5);
+
+                    y += 24;
+
+                    const rowH = 18;
+                    const col1 = pad;
+                    const col2 = W / 2;
+
+                    const drawRow = (label, value) => {
+                        doc.setFont('helvetica', 'bold');
+                        doc.text(label, col1, y);
+
+                        doc.setFont('helvetica', 'normal');
+                        doc.text(value || '-', col2, y);
+
+                        y += rowH;
+                    };
+
+                    drawRow('Name', ownerProfile.name);
+                    drawRow('Company', ownerProfile.companyName);
+                    drawRow('Mobile', ownerProfile.mobile);
+                    drawRow('Email', ownerProfile.email);
+
+                    if (ownerProfile.city || ownerProfile.state) {
+                        drawRow(
+                            'Location',
+                            `${ownerProfile.city || ''}${ownerProfile.state ? ', ' + ownerProfile.state : ''}`
+                        );
+                    }
+
+                    y += 16;
+                }
+
+                /* =====================================================
+                   MEMBER & CHIT DETAILS — SOFT HEADER
+                ===================================================== */
+
+                doc.setFillColor(SOFT);
+                doc.rect(pad, y - 12, W - pad * 2, 26, 'F');
+
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(11);
+                doc.text('Member & Chit Details', pad + 6, y + 5);
+
+                y += 24;
+
+                const rowH2 = 18;
+                const col1b = pad;
+                const col2b = W / 2;
+
+                const drawRow2 = (label, value) => {
+                    doc.setFont('helvetica', 'bold');
+                    doc.text(label, col1b, y);
+
+                    doc.setFont('helvetica', 'normal');
+                    doc.text(value || '-', col2b, y);
+
+                    y += rowH2;
+                };
+
+                drawRow2('Member Name', member.name);
+                drawRow2('Mobile', member.mobile);
+                drawRow2('Plan', chit.chitName);
+                drawRow2('Frequency', chit.frequency);
+
+                y += 24;
+
+                /* =====================================================
+                   TABLE 1 — PAID PAYMENTS
+                ===================================================== */
+
+                doc.setFillColor(SOFT);
+                doc.rect(pad, y - 14, W - pad * 2, 26, 'F');
+
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(11);
+                doc.text('PAID PAYMENTS', pad + 6, y + 5);
+
+                y += 24;
+
+                const colPaid = {
+                    p: pad,
+                    due: pad + 90,
+                    amt: pad + 230,
+                    paid: pad + 360
+                };
+
+                doc.setFontSize(10);
+                doc.text('Period', colPaid.p, y);
+                doc.text('Due Date', colPaid.due, y);
+                doc.text('Amount', colPaid.amt, y);
+                doc.text('Paid On', colPaid.paid, y);
+
+                y += 8;
+                doc.setLineWidth(0.7);
+                doc.line(pad, y, W - pad, y);
+                y += 12;
+
+                doc.setFont('helvetica', 'normal');
+
+                const payments = [...member.payments].sort((a, b) => a.period - b.period);
+                const paidPayments = payments.filter(p => p.paid);
+
+                if (paidPayments.length === 0) {
+                    doc.text('No payments made yet.', pad, y);
+                    y += 16;
+                } else {
+                    for (const p of paidPayments) {
+                        const due =
+                            p.dueDate ||
+                            (chit.schedule && chit.schedule[p.period - 1]) ||
+                            computeDueFromChit(p.period);
+
+                        doc.text(String(p.period), colPaid.p, y);
+                        doc.text(formatDate(new Date(due)), colPaid.due, y);
+                        doc.text(formatAmt(p.totalAmount), colPaid.amt, y);
+                        doc.text(p.paidAt ? formatDate(new Date(p.paidAt)) : '-', colPaid.paid, y);
+
+                        y += 14;
+
+                        if (y > H - 100) {
+                            doc.addPage();
+                            y = 40;
+                        }
+                    }
+                }
+
+                y += 24;
+
+                /* =====================================================
+                   TABLE 2 — NEXT PAYMENT
+                ===================================================== */
+
+                const next = payments.find(p => !p.paid);
+
+                doc.setFillColor(SOFT);
+                doc.rect(pad, y - 14, W - pad * 2, 26, 'F');
+
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(11);
+                doc.text('NEXT PAYMENT', pad + 6, y + 5);
+
+                y += 24;
+
+                doc.setFontSize(10);
+                doc.text('Period', colPaid.p, y);
+                doc.text('Due Date', colPaid.due, y);
+                doc.text('Amount', colPaid.amt, y);
+
+                y += 8;
+                doc.line(pad, y, W - pad, y);
+                y += 12;
+
+                doc.setFont('helvetica', 'normal');
+
+                if (next) {
+                    const nextDue =
+                        next.dueDate ||
+                        (chit.schedule && chit.schedule[next.period - 1]) ||
+                        computeDueFromChit(next.period);
+
+                    doc.text(String(next.period), colPaid.p, y);
+                    doc.text(formatDate(new Date(nextDue)), colPaid.due, y);
+                    doc.text(formatAmt(next.totalAmount), colPaid.amt, y);
+                    y += 14;
+                } else {
+                    doc.text('All payments completed.', pad, y);
+                    y += 14;
+                }
+
+                y += 30;
+
+                /* =====================================================
+                   FOOTER
+                ===================================================== */
+
+                doc.setDrawColor(LINE);
+                doc.line(pad, y, W - pad, y);
+
+                y += 14;
+                doc.setFontSize(9);
+                doc.setTextColor(120);
+                doc.text('System generated receipt.', pad, y);
+
+                /* =====================================================
+                   SEAL + SIGNATURE
+                ===================================================== */
+
+                const sealY = H - 120;
+                const sealX = W - 120;
+
+                doc.setDrawColor('#b12d3b');
+                doc.setLineWidth(2);
+                doc.circle(sealX, sealY, 40);
+                doc.circle(sealX, sealY, 36);
+
+                doc.setTextColor('#b12d3b');
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'bold');
+                doc.text('APPROVED', sealX, sealY, { align: 'center', baseline: 'middle' });
+
+                if (ownerProfile?.companyName) {
+                    doc.setFontSize(7);
+                    doc.text(
+                        ownerProfile.companyName.toUpperCase().substring(0, 15),
+                        sealX,
+                        sealY - 15,
+                        { align: 'center' }
+                    );
+                }
+
+                doc.setFontSize(8);
+                doc.text(formatDate(new Date()), sealX, sealY + 15, { align: 'center' });
+
+                doc.setDrawColor(TEXT);
+                doc.setLineWidth(1);
+                doc.line(sealX - 40, sealY + 60, sealX + 40, sealY + 60);
+                doc.setTextColor(TEXT);
+                doc.text('Authorized Signature', sealX, sealY + 75, { align: 'center' });
+
+                doc.save(`Chitly_Receipt_${member.name.replace(/\s+/g, '_')}.pdf`);
+
+            } catch (err) {
+                showNotify('PDF generation failed: ' + err.message, 'Error');
+            }
+        }
+
+        async function downloadAsImage() {
+            try {
+                const element = document.querySelector('.page'); // Capture the main content area
+                if (!element) return;
+
+                showNotify('Generating image, please wait...', 'Processing');
+
+                // Small delay to allow UI to render fully if needed
+                await new Promise(r => setTimeout(r, 100));
+
+                const canvas = await html2canvas(element, {
+                    scale: 2, // Higher scale for better quality
+                    useCORS: true, // Allow loading remote images (like avatar if applicable)
+                    backgroundColor: '#f5efe6' // Ensure background color is captured
+                });
+
+                const link = document.createElement('a');
+                link.download = `MemberDetails_${member.name || 'Member'}_${Date.now()}.png`;
+                link.href = canvas.toDataURL('image/png');
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                closeNotify(); // Close the 'Processing' modal
+            } catch (err) {
+                console.error(err);
+                showNotify('Failed to generate image', 'Error');
+            }
+        }
+
+
+        // Show download buttons to admins after data loads
+        if (isAdminToken()) {
+            document.querySelectorAll('.downloadPdfBtn').forEach(b => b.style.display = 'inline-block');
+        }
+
+        // NAVBAR & SIDEBAR LOGIC
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('open');
+        }
+
+        const profileMenuBtn = document.getElementById('profileMenuBtn');
+        const profileDropdown = document.getElementById('profileDropdown');
+
+        if (profileMenuBtn) {
+            profileMenuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                profileDropdown.classList.toggle('show');
+            });
+        }
+
+        document.addEventListener('click', () => {
+            if (profileDropdown) profileDropdown.classList.remove('show');
+        });
+
+        // Load Avatar Initial
+        fetch(`${API_BASE}/auth/me`, { headers: { 'Authorization': `Bearer ${token}` } })
+            .then(r => r.json())
+            .then(user => {
+                const init = user.name ? user.name[0].toUpperCase() : '?';
+                const el = document.getElementById('headerAvatar');
+                if (el) el.textContent = init;
+            }).catch(() => { });
+
+        loadData();
+    </script>
+</body>
+
+</html>
